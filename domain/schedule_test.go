@@ -7,6 +7,59 @@ import (
 	"testing"
 )
 
+func TestSchedule(t *testing.T) {
+	testCases := []struct {
+		Name        string
+		Periods     []domain.Period
+		ExpectError bool
+	}{
+		{
+			Name:        "empty_periods",
+			Periods:     []domain.Period{},
+			ExpectError: false,
+		},
+		{
+			Name: "non_overlaping_periods",
+			Periods: []domain.Period{
+				domain.MustNewPeriod(
+					domain.MustNewTime(11, 00),
+					domain.MustNewTime(12, 00),
+				),
+				domain.MustNewPeriod(
+					domain.MustNewTime(13, 00),
+					domain.MustNewTime(14, 00),
+				),
+			},
+			ExpectError: false,
+		},
+		{
+			Name: "overlaping_periods",
+			Periods: []domain.Period{
+				domain.MustNewPeriod(
+					domain.MustNewTime(11, 00),
+					domain.MustNewTime(13, 00),
+				),
+				domain.MustNewPeriod(
+					domain.MustNewTime(12, 00),
+					domain.MustNewTime(14, 00),
+				),
+			},
+			ExpectError: true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			_, err := domain.NewSchedule(testCase.Periods)
+			if testCase.ExpectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestPeriod(t *testing.T) {
 	testCases := []struct {
 		Name        string
