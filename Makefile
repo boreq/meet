@@ -38,6 +38,9 @@ doc:
 	@echo "http://localhost:6060/pkg/github.com/boreq/${PROGRAM_NAME}/"
 	godoc -http=:6060
 
+fmt:
+	goimports -l -w domain/
+
 test:
 	go test ./...
 
@@ -47,4 +50,4 @@ test-verbose:
 clean:
 	rm -rf ./${BUILD_DIRECTORY}
 
-.PHONY: all build build-directory frontend check-repository-unchanged build-race tools dependencies lint doc test test-verbose clean
+.PHONY: all build build-directory frontend check-repository-unchanged build-race tools dependencies lint doc fmt test test-verbose clean

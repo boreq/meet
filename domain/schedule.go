@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+
 	"github.com/boreq/errors"
 )
 

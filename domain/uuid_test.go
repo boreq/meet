@@ -1,9 +1,10 @@
 package domain_test
 
 import (
+	"testing"
+
 	"github.com/boreq/hydro/domain"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestUUID(t *testing.T) {
