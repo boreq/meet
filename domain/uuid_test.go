@@ -13,9 +13,9 @@ func TestUUID(t *testing.T) {
 		Constructor uuidConstructor
 	}{
 		{
-			Name: "rack_uuid",
+			Name: "controller_uuid",
 			Constructor: func(s string) (uuid, error) {
-				return domain.NewRackUUID(s)
+				return domain.NewControllerUUID(s)
 			},
 		},
 		{

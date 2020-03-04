@@ -1,10 +1,12 @@
 package domain
 
-import "github.com/boreq/errors"
+import (
+	"github.com/boreq/errors"
+)
 
 type Device struct {
-	uuid     DeviceUUID
-	schedule Schedule
+	uuid       DeviceUUID
+	schedule   Schedule
 }
 
 func NewDevice(uuid DeviceUUID, schedule Schedule) (Device, error) {
@@ -13,7 +15,20 @@ func NewDevice(uuid DeviceUUID, schedule Schedule) (Device, error) {
 	}
 
 	return Device{
-		uuid:     uuid,
-		schedule: schedule,
+		uuid:       uuid,
+		schedule:   schedule,
 	}, nil
+}
+
+func (d Device) SetSchedule(schedule Schedule) error {
+	d.schedule = schedule
+	return nil
+}
+
+func (d Device) UUID() DeviceUUID {
+	return d.uuid
+}
+
+func (d Device) Schedule() Schedule {
+	return d.schedule
 }

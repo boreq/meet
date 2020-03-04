@@ -18,16 +18,16 @@ func newUUID(u string) (uuid, error) {
 	return uuid{u: u}, nil
 }
 
-type RackUUID struct {
+type ControllerUUID struct {
 	uuid
 }
 
-func NewRackUUID(u string) (RackUUID, error) {
+func NewControllerUUID(u string) (ControllerUUID, error) {
 	uuid, err := newUUID(u)
 	if err != nil {
-		return RackUUID{}, errors.New("could not create a rack UUID")
+		return ControllerUUID{}, errors.New("could not create a controller UUID")
 	}
-	return RackUUID{uuid}, nil
+	return ControllerUUID{uuid}, nil
 }
 
 type DeviceUUID struct {
