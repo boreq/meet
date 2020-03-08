@@ -73,7 +73,7 @@ func (c ControllerRepository) GetByAddress(address domain.Address) (*domain.Cont
 		}
 	}
 
-	return nil, hydro.ControllerNotFoundErr
+	return nil, hydro.ErrControllerNotFound
 }
 
 func (c ControllerRepository) Save(controller *domain.Controller) error {
@@ -84,7 +84,7 @@ func (c ControllerRepository) get(uuid domain.ControllerUUID) (*domain.Controlle
 	events, err := c.eventStore.GetEvents(c.convertUUID(uuid))
 	if err != nil {
 		if errors.Is(err, eventsourcing.EventsNotFound) {
-			return nil, hydro.ControllerNotFoundErr
+			return nil, hydro.ErrControllerNotFound
 		}
 		return nil, errors.Wrap(err, "could not get events")
 	}

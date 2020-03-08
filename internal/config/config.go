@@ -10,6 +10,7 @@ type Config struct {
 func Default() *Config {
 	conf := &Config{
 		ServeAddress: "127.0.0.1:8118",
+		DatabaseFile: "/path/to/database.bolt",
 	}
 	return conf
 }

@@ -24,7 +24,7 @@ func NewUUIDGenerator() *UUIDGenerator {
 	}
 }
 
-func (u UUIDGenerator) Generate() (string, error) {
+func (u *UUIDGenerator) Generate() (string, error) {
 	u.mutex.Lock()
 	defer u.mutex.Unlock()
 

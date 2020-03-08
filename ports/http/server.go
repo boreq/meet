@@ -1,11 +1,11 @@
 package http
 
 import (
-	"github.com/boreq/errors"
 	"net"
 	"net/http"
 
 	"github.com/NYTimes/gziphandler"
+	"github.com/boreq/errors"
 	"github.com/boreq/hydro/internal/logging"
 	"github.com/rs/cors"
 )
@@ -17,6 +17,10 @@ type Server struct {
 }
 
 func NewServer(handler http.Handler, address string) (*Server, error) {
+	log := logging.New("ports/http.Server")
+
+	log.Info("starting listening", "address", address)
+
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not listen on '%s'", address)
@@ -27,11 +31,12 @@ func NewServer(handler http.Handler, address string) (*Server, error) {
 			Handler: addMiddlewares(handler),
 		},
 		listener: listener,
-		log:      logging.New("ports/http.Server"),
+		log:      log,
 	}, nil
 }
 
 func (s *Server) Serve() error {
+	s.log.Debug("starting processing connections")
 	return s.server.Serve(s.listener)
 }
 

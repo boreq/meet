@@ -159,6 +159,6 @@ func toKey(version eventsourcing.AggregateVersion) []byte {
 	return b
 }
 
-func fromKey(key []byte) eventsourcing.AggregateVersion {
-	return eventsourcing.AggregateVersion(binary.BigEndian.Uint64(key))
-}
+//func fromKey(key []byte) eventsourcing.AggregateVersion {
+//	return eventsourcing.AggregateVersion(binary.BigEndian.Uint64(key))
+//}

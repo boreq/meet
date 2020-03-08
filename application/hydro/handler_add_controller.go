@@ -35,7 +35,7 @@ func (h *AddControllerHandler) Execute(ctx context.Context, cmd AddController) e
 	return h.transactionProvider.Transact(ctx, func(t *TransactableAdapters) error {
 		_, err := t.Controllers.GetByAddress(controller.Address())
 		if err != nil {
-			if !errors.Is(err, ControllerNotFoundErr) {
+			if !errors.Is(err, ErrControllerNotFound) {
 				return errors.Wrap(err, "could not get a controller by address")
 			}
 		} else {

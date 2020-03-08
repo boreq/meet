@@ -11,7 +11,7 @@ type UUIDGenerator interface {
 	Generate() (string, error)
 }
 
-var ControllerNotFoundErr = errors.New("controller not found")
+var ErrControllerNotFound = errors.New("controller not found")
 
 type ControllerRepository interface {
 	List() ([]*domain.Controller, error)
