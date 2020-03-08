@@ -1,11 +1,17 @@
 package eventsourcing
 
+import "github.com/boreq/errors"
+
 type EventSourcing struct {
 	Changes        []EventSourcingEvent
 	CurrentVersion AggregateVersion
 }
 
 func (e *EventSourcing) Record(event Event) error {
+	if event == nil {
+		return errors.New("nil event")
+	}
+
 	e.Changes = append(e.Changes, EventSourcingEvent{
 		Event:            event,
 		AggregateVersion: e.CurrentVersion,
