@@ -61,6 +61,37 @@ func TestSchedule(t *testing.T) {
 	}
 }
 
+func TestEqual(t *testing.T) {
+	s1 := domain.MustNewSchedule(
+		[]domain.Period{
+			domain.MustNewPeriod(
+				domain.MustNewTime(11, 00),
+				domain.MustNewTime(12, 00),
+			),
+			domain.MustNewPeriod(
+				domain.MustNewTime(13, 00),
+				domain.MustNewTime(14, 00),
+			),
+		},
+	)
+
+	s2 := domain.MustNewSchedule(
+		[]domain.Period{
+			domain.MustNewPeriod(
+				domain.MustNewTime(13, 00),
+				domain.MustNewTime(14, 00),
+			),
+			domain.MustNewPeriod(
+				domain.MustNewTime(11, 00),
+				domain.MustNewTime(12, 00),
+			),
+		},
+	)
+
+	require.True(t, s1.Equal(s2))
+	require.True(t, s2.Equal(s1))
+}
+
 func TestPeriod(t *testing.T) {
 	testCases := []struct {
 		Name        string

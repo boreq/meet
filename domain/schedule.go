@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/boreq/errors"
 )
@@ -20,6 +21,46 @@ func NewSchedule(periods []Period) (Schedule, error) {
 	}
 
 	return *s, nil
+}
+
+func MustNewSchedule(periods []Period) Schedule {
+	schedule, err := NewSchedule(periods)
+	if err != nil {
+		panic(err)
+	}
+
+	return schedule
+}
+
+func (s Schedule) Equal(o Schedule) bool {
+	a := s.Periods()
+	b := o.Periods()
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].start.Before(a[j].start)
+	})
+
+	sort.Slice(b, func(i, j int) bool {
+		return b[i].start.Before(b[j].start)
+	})
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (s Schedule) Periods() []Period {
+	periods := make([]Period, len(s.periods))
+	copy(periods, s.periods)
+	return periods
 }
 
 func (s *Schedule) addPeriod(period Period) error {
