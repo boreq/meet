@@ -2,11 +2,12 @@ package commands
 
 import (
 	"encoding/json"
+	"os"
+
 	"github.com/boreq/errors"
 	"github.com/boreq/guinea"
 	"github.com/boreq/hydro/internal/config"
 	"github.com/boreq/hydro/internal/wire"
-	"os"
 )
 
 var runCmd = guinea.Command{

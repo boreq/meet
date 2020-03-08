@@ -1,12 +1,13 @@
 package fixture
 
 import (
-	"github.com/boreq/hydro/internal/config"
-	"github.com/boreq/hydro/internal/wire"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/boreq/hydro/internal/config"
+	"github.com/boreq/hydro/internal/wire"
 
 	bolt "go.etcd.io/bbolt"
 )

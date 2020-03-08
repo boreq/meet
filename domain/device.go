@@ -5,8 +5,8 @@ import (
 )
 
 type Device struct {
-	uuid       DeviceUUID
-	schedule   Schedule
+	uuid     DeviceUUID
+	schedule Schedule
 }
 
 func NewDevice(uuid DeviceUUID, schedule Schedule) (Device, error) {
@@ -15,8 +15,8 @@ func NewDevice(uuid DeviceUUID, schedule Schedule) (Device, error) {
 	}
 
 	return Device{
-		uuid:       uuid,
-		schedule:   schedule,
+		uuid:     uuid,
+		schedule: schedule,
 	}, nil
 }
 

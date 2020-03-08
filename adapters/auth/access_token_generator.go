@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/boreq/hydro/application/auth"
 	"github.com/boreq/errors"
+	"github.com/boreq/hydro/application/auth"
 )
 
 const tokenLengthBytes = 256 / 8

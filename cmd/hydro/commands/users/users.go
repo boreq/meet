@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/boreq/guinea"
 	authAdapters "github.com/boreq/hydro/adapters/auth"
 	"github.com/boreq/hydro/application/auth"
 	"github.com/boreq/hydro/internal/config"
 	"github.com/boreq/hydro/internal/wire"
-	"github.com/boreq/guinea"
 	"github.com/pkg/errors"
 )
 

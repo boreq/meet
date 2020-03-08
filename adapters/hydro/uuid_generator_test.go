@@ -1,9 +1,10 @@
 package hydro_test
 
 import (
+	"testing"
+
 	"github.com/boreq/hydro/adapters/hydro"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestUUIDGenerator(t *testing.T) {

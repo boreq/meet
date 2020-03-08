@@ -3,9 +3,9 @@ package auth
 import (
 	"encoding/json"
 
+	"github.com/boreq/errors"
 	"github.com/boreq/hydro/application/auth"
 	"github.com/boreq/hydro/internal/logging"
-	"github.com/boreq/errors"
 	bolt "go.etcd.io/bbolt"
 )
 

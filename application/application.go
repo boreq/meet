@@ -6,6 +6,6 @@ import (
 )
 
 type Application struct {
-	Auth auth.Auth
+	Auth  auth.Auth
 	Hydro hydro.Hydro
 }

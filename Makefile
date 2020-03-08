@@ -1,9 +1,9 @@
 BUILD_DIRECTORY=_build
 PROGRAM_NAME=hydro
 
-all: test lint build
+all: fmt test lint build
 
-ci: tools dependencies generate check-repository-unchanged test lint build
+ci: tools dependencies generate fmt check-repository-unchanged test lint build
 
 build-directory:
 	mkdir -p ./${BUILD_DIRECTORY}
@@ -39,7 +39,7 @@ doc:
 	godoc -http=:6060
 
 fmt:
-	goimports -l -w domain/
+	goimports -l -w adapters/ application/ cmd/ domain/ internal/ ports/
 
 test:
 	go test ./...

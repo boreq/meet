@@ -1,9 +1,10 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/boreq/errors"
 	httpPort "github.com/boreq/hydro/ports/http"
-	"net/http"
 )
 
 type Service struct {

@@ -1,12 +1,13 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/boreq/hydro/application"
 	"github.com/boreq/hydro/internal/logging"
 	"github.com/boreq/hydro/ports/http/frontend"
 	"github.com/boreq/hydro/ports/http/hydro"
 	"github.com/go-chi/chi"
-	"net/http"
 )
 
 type Handler struct {
