@@ -1,0 +1,4 @@
+_build
+.idea
+config.json
+database.bolt
