@@ -4,27 +4,23 @@ import (
 	"net/http"
 
 	"github.com/boreq/hydro/application"
-	"github.com/boreq/hydro/internal/logging"
 	"github.com/boreq/hydro/ports/http/frontend"
 	"github.com/boreq/hydro/ports/http/hydro"
 	"github.com/go-chi/chi"
 )
 
 type Handler struct {
-	app    *application.Application
 	router *chi.Mux
-	log    logging.Logger
 }
 
 const hydroPrefix = "/api/hydro"
 
 func NewHandler(app *application.Application) (*Handler, error) {
 	h := &Handler{
-		app:    app,
 		router: chi.NewRouter(),
-		log:    logging.New("ports/http.Handler"),
 	}
 
+	// Subrouters
 	h.router.Mount(hydroPrefix, http.StripPrefix(hydroPrefix, hydro.NewHandler(app)))
 
 	// Frontend
