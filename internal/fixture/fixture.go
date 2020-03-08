@@ -53,6 +53,7 @@ func Service(t *testing.T) (wire.ComponentTestService, CleanupFunc) {
 	db, dbCleanup := Bolt(t)
 
 	conf := config.Default()
+	conf.ServeAddress = "127.0.0.1:9119"
 
 	service, err := wire.BuildComponentTestService(db, conf)
 	if err != nil {

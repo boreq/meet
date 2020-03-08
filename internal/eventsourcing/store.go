@@ -24,6 +24,18 @@ type EventSourcingEvent struct {
 	AggregateVersion AggregateVersion
 }
 
+type EventSourcingEvents []EventSourcingEvent
+
+func (e EventSourcingEvents) Payloads() []Event {
+	var payloads []Event
+
+	for _, event := range e {
+		payloads = append(payloads, event.Event)
+	}
+
+	return payloads
+}
+
 type PersistedEvent struct {
 	EventPayload     []byte           `json:"eventPayload"`
 	EventType        EventType        `json:"eventType"`

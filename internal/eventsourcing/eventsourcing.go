@@ -3,7 +3,7 @@ package eventsourcing
 import "github.com/boreq/errors"
 
 type EventSourcing struct {
-	Changes        []EventSourcingEvent
+	Changes        EventSourcingEvents
 	CurrentVersion AggregateVersion
 }
 
@@ -24,7 +24,7 @@ func (e *EventSourcing) HasChanges() bool {
 	return len(e.Changes) > 0
 }
 
-func (e *EventSourcing) PopChanges() []EventSourcingEvent {
+func (e *EventSourcing) PopChanges() EventSourcingEvents {
 	tmp := e.Changes
 	e.Changes = nil
 	return tmp
