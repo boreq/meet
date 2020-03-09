@@ -40,8 +40,13 @@ func BuildTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, 
 	if err != nil {
 		return nil, err
 	}
+	deviceRepository, err := hydro2.NewDeviceRepository(tx)
+	if err != nil {
+		return nil, err
+	}
 	transactableAdapters := &hydro.TransactableAdapters{
 		Controllers: controllerRepository,
+		Devices:     deviceRepository,
 	}
 	return transactableAdapters, nil
 }
@@ -142,9 +147,11 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 	transactionProvider := hydro2.NewTransactionProvider(db, wireHydroAdaptersProvider)
 	uuidGenerator := hydro2.NewUUIDGenerator()
 	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
+	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
 	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
 	hydroHydro := hydro.Hydro{
 		AddControllerHandler:   addControllerHandler,
+		SetControllerDevices:   setControllerDevicesHandler,
 		ListControllersHandler: listControllersHandler,
 	}
 	applicationApplication := &application.Application{
@@ -193,9 +200,11 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	transactionProvider := hydro2.NewTransactionProvider(db, wireHydroAdaptersProvider)
 	uuidGenerator := hydro2.NewUUIDGenerator()
 	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
+	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
 	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
 	hydroHydro := hydro.Hydro{
 		AddControllerHandler:   addControllerHandler,
+		SetControllerDevices:   setControllerDevicesHandler,
 		ListControllersHandler: listControllersHandler,
 	}
 	applicationApplication := &application.Application{

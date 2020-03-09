@@ -34,6 +34,14 @@ func NewControllerUUID(u string) (ControllerUUID, error) {
 	return ControllerUUID{uuid}, nil
 }
 
+func MustNewControllerUUID(u string) ControllerUUID {
+	v, err := NewControllerUUID(u)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 type DeviceUUID struct {
 	uuid
 }
@@ -44,4 +52,12 @@ func NewDeviceUUID(u string) (DeviceUUID, error) {
 		return DeviceUUID{}, errors.New("could not create a device UUID")
 	}
 	return DeviceUUID{uuid}, nil
+}
+
+func MustNewDeviceUUID(u string) DeviceUUID {
+	v, err := NewDeviceUUID(u)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }

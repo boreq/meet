@@ -25,4 +25,5 @@ var appSet = wire.NewSet(
 	wire.Struct(new(hydro.Hydro), "*"),
 	hydro.NewAddControllerHandler,
 	hydro.NewListControllersHandler,
+	hydro.NewSetControllerDevicesHandler,
 )

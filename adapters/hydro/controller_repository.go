@@ -9,17 +9,17 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
+const controllersBucket = "controllers"
+
 type ControllerRepository struct {
 	tx         *bolt.Tx
 	eventStore *eventsourcing.EventStore
 }
 
-const parentBucketName = "controllers"
-
 func NewControllerRepository(tx *bolt.Tx) (*ControllerRepository, error) {
 	persistenceAdapter := adapters.NewBoltPersistenceAdapter(tx, func(uuid eventsourcing.AggregateUUID) []adapters.BucketName {
 		return []adapters.BucketName{
-			[]byte(parentBucketName),
+			[]byte(controllersBucket),
 			[]byte(uuid),
 			[]byte("events"),
 		}
@@ -33,7 +33,7 @@ func NewControllerRepository(tx *bolt.Tx) (*ControllerRepository, error) {
 }
 
 func (c ControllerRepository) List() ([]*domain.Controller, error) {
-	bucket := c.tx.Bucket([]byte(parentBucketName))
+	bucket := c.tx.Bucket([]byte(controllersBucket))
 	if bucket == nil {
 		return nil, nil
 	}
@@ -46,7 +46,7 @@ func (c ControllerRepository) List() ([]*domain.Controller, error) {
 			return errors.Wrap(err, "could not create a uuid")
 		}
 
-		controller, err := c.get(uuid)
+		controller, err := c.Get(uuid)
 		if err != nil {
 			return errors.Wrapf(err, "could not get '%s'", uuid)
 
@@ -80,7 +80,7 @@ func (c ControllerRepository) Save(controller *domain.Controller) error {
 	return c.eventStore.SaveEvents(c.convertUUID(controller.UUID()), controller.PopChanges())
 }
 
-func (c ControllerRepository) get(uuid domain.ControllerUUID) (*domain.Controller, error) {
+func (c ControllerRepository) Get(uuid domain.ControllerUUID) (*domain.Controller, error) {
 	events, err := c.eventStore.GetEvents(c.convertUUID(uuid))
 	if err != nil {
 		if errors.Is(err, eventsourcing.EventsNotFound) {

@@ -20,7 +20,7 @@ func TestSchedule(t *testing.T) {
 			ExpectError: false,
 		},
 		{
-			Name: "non_overlaping_periods",
+			Name: "non_overlapping_periods",
 			Periods: []domain.Period{
 				domain.MustNewPeriod(
 					domain.MustNewTime(11, 00),
@@ -34,7 +34,7 @@ func TestSchedule(t *testing.T) {
 			ExpectError: false,
 		},
 		{
-			Name: "overlaping_periods",
+			Name: "overlapping_periods",
 			Periods: []domain.Period{
 				domain.MustNewPeriod(
 					domain.MustNewTime(11, 00),

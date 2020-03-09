@@ -47,6 +47,9 @@ var adapterSet = wire.NewSet(
 	hydroAdapters.NewControllerRepository,
 	wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepository)),
 
+	hydroAdapters.NewDeviceRepository,
+	wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepository)),
+
 	hydroAdapters.NewUUIDGenerator,
 	wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGenerator)),
 )

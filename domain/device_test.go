@@ -12,7 +12,13 @@ func TestDevice(t *testing.T) {
 	deviceUUID, err := domain.NewDeviceUUID("device-uuid")
 	require.NoError(t, err)
 
-	device, err := domain.NewDevice(deviceUUID)
+	controllerUUID, err := domain.NewControllerUUID("controller-uuid")
+	require.NoError(t, err)
+
+	deviceId, err := domain.NewDeviceID("device-id")
+	require.NoError(t, err)
+
+	device, err := domain.NewDevice(deviceUUID, controllerUUID, deviceId)
 	require.NoError(t, err)
 
 	require.Equal(t, deviceUUID, device.UUID())
@@ -48,7 +54,9 @@ func TestDevice(t *testing.T) {
 
 	require.Equal(t, []eventsourcing.Event{
 		domain.DeviceCreated{
-			UUID: deviceUUID,
+			UUID:           deviceUUID,
+			ControllerUUID: controllerUUID,
+			ID:             deviceId,
 		},
 		domain.ScheduleSet{
 			Schedule: schedule,

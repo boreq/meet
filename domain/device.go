@@ -8,21 +8,31 @@ import (
 )
 
 type Device struct {
-	uuid     DeviceUUID
-	schedule Schedule
-	mode     DeviceMode
+	uuid           DeviceUUID
+	controllerUUID ControllerUUID
+	id             DeviceID
+	schedule       Schedule
+	mode           DeviceMode
 
 	es eventsourcing.EventSourcing
 }
 
-func NewDevice(uuid DeviceUUID) (*Device, error) {
+func NewDevice(uuid DeviceUUID, controllerUUID ControllerUUID, id DeviceID) (*Device, error) {
 	if uuid.IsZero() {
 		return nil, errors.New("zero value of uuid")
 	}
 
+	if controllerUUID.IsZero() {
+		return nil, errors.New("zero value of controller uuid")
+	}
+
+	if id.IsZero() {
+		return nil, errors.New("zero value of id")
+	}
+
 	device := &Device{}
 
-	event := DeviceCreated{uuid}
+	event := DeviceCreated{uuid, controllerUUID, id}
 	if err := device.update(event); err != nil {
 		return nil, errors.Wrap(err, "could not consume an event")
 	}
@@ -73,6 +83,14 @@ func (d *Device) UUID() DeviceUUID {
 	return d.uuid
 }
 
+func (d *Device) ControllerUUID() ControllerUUID {
+	return d.controllerUUID
+}
+
+func (d *Device) ID() DeviceID {
+	return d.id
+}
+
 func (d *Device) Schedule() Schedule {
 	return d.schedule
 }
@@ -102,6 +120,8 @@ func (d *Device) update(event eventsourcing.Event) error {
 
 func (d *Device) handleDeviceCreated(e DeviceCreated) {
 	d.uuid = e.UUID
+	d.controllerUUID = e.ControllerUUID
+	d.id = e.ID
 	d.schedule = Schedule{}
 	d.mode = DeviceModeAuto
 }
@@ -114,9 +134,10 @@ func (d *Device) handleModeSet(e ModeSet) {
 	d.mode = e.Mode
 }
 
-
 type DeviceCreated struct {
-	UUID DeviceUUID
+	UUID           DeviceUUID
+	ControllerUUID ControllerUUID
+	ID             DeviceID
 }
 
 func (c DeviceCreated) EventType() eventsourcing.EventType {
@@ -152,3 +173,33 @@ var (
 	DeviceModeOn   = DeviceMode{"on"}
 	DeviceModeOff  = DeviceMode{"off"}
 )
+
+type DeviceID struct {
+	id string
+}
+
+func NewDeviceID(id string) (DeviceID, error) {
+	if id == "" {
+		return DeviceID{}, errors.New("address can not be empty")
+	}
+
+	return DeviceID{
+		id: id,
+	}, nil
+}
+
+func MustNewDeviceID(id string) DeviceID {
+	v, err := NewDeviceID(id)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func (i DeviceID) String() string {
+	return i.id
+}
+
+func (i DeviceID) IsZero() bool {
+	return i == DeviceID{}
+}

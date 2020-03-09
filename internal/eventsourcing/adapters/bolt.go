@@ -10,7 +10,7 @@ import (
 )
 
 type BucketName []byte
-type GetBucketPathFunc func(uuid eventsourcing.AggregateUUID) []BucketName
+type GetBucketPathFunc func(aggregate eventsourcing.AggregateUUID) []BucketName
 
 type BoltPersistenceAdapter struct {
 	tx       *bolt.Tx
@@ -113,20 +113,12 @@ func (b *BoltPersistenceAdapter) getBucket(uuid eventsourcing.AggregateUUID) (bu
 	}
 
 	bucket = b.tx.Bucket(bucketNames[0])
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create a bucket")
-	}
-
 	if bucket == nil {
 		return nil, eventsourcing.EventsNotFound
 	}
 
 	for i := 1; i < len(bucketNames); i++ {
 		bucket = bucket.Bucket(bucketNames[i])
-		if err != nil {
-			return nil, errors.Wrap(err, "could not create a bucket")
-		}
-
 		if bucket == nil {
 			return nil, eventsourcing.EventsNotFound
 		}
