@@ -14,7 +14,6 @@ var appSet = wire.NewSet(
 	hydroAppSet,
 )
 
-//lint:ignore U1000 because
 var authAppSet = wire.NewSet(
 	wire.Struct(new(auth.Auth), "*"),
 	auth.NewRegisterInitialHandler,
@@ -28,10 +27,10 @@ var authAppSet = wire.NewSet(
 	auth.NewSetPasswordHandler,
 )
 
-//lint:ignore U1000 because
 var hydroAppSet = wire.NewSet(
 	wire.Struct(new(hydro.Hydro), "*"),
 	hydro.NewAddControllerHandler,
 	hydro.NewListControllersHandler,
 	hydro.NewSetControllerDevicesHandler,
+	hydro.NewListControllerDevicesHandler,
 )

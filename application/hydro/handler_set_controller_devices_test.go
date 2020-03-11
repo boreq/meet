@@ -77,7 +77,7 @@ func TestSetControllerDevices(t *testing.T) {
 		},
 	}
 
-	err = app.Hydro.SetControllerDevices.Execute(ctx, cmd)
+	err = app.Hydro.SetControllerDevicesHandler.Execute(ctx, cmd)
 	require.NoError(t, err)
 
 	expectedDevice4UUID := domain.MustNewDeviceUUID("uuid-1")

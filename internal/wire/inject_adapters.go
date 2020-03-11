@@ -93,4 +93,3 @@ func newHydroAdaptersProvider() *hydroAdaptersProvider {
 func (p *hydroAdaptersProvider) Provide(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
 	return BuildTransactableHydroAdapters(tx)
 }
-

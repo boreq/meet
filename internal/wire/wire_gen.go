@@ -8,6 +8,7 @@ package wire
 import (
 	auth2 "github.com/boreq/hydro/adapters/auth"
 	hydro2 "github.com/boreq/hydro/adapters/hydro"
+	"github.com/boreq/hydro/adapters/hydro/controller"
 	"github.com/boreq/hydro/application"
 	"github.com/boreq/hydro/application/auth"
 	"github.com/boreq/hydro/application/hydro"
@@ -47,16 +48,6 @@ func BuildTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, 
 	transactableAdapters := &hydro.TransactableAdapters{
 		Controllers: controllerRepository,
 		Devices:     deviceRepository,
-	}
-	return transactableAdapters, nil
-}
-
-func BuildTestTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, error) {
-	controllerRepositoryMock := hydro2.NewControllerRepositoryMock()
-	deviceRepositoryMock := hydro2.NewDeviceRepositoryMock()
-	transactableAdapters := &hydro.TransactableAdapters{
-		Controllers: controllerRepositoryMock,
-		Devices:     deviceRepositoryMock,
 	}
 	return transactableAdapters, nil
 }
@@ -159,10 +150,12 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
 	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
 	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
+	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(transactionProvider)
 	hydroHydro := hydro.Hydro{
-		AddControllerHandler:   addControllerHandler,
-		SetControllerDevices:   setControllerDevicesHandler,
-		ListControllersHandler: listControllersHandler,
+		AddControllerHandler:         addControllerHandler,
+		SetControllerDevicesHandler:  setControllerDevicesHandler,
+		ListControllersHandler:       listControllersHandler,
+		ListControllerDevicesHandler: listControllerDevicesHandler,
 	}
 	applicationApplication := &application.Application{
 		Auth:  authAuth,
@@ -176,7 +169,9 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	serviceService := service.NewService(server)
+	clientMock := controller.NewClientMock()
+	scanner := newScanner(clientMock, applicationApplication)
+	serviceService := service.NewService(server, scanner)
 	return serviceService, nil
 }
 
@@ -212,10 +207,12 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
 	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
 	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
+	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(transactionProvider)
 	hydroHydro := hydro.Hydro{
-		AddControllerHandler:   addControllerHandler,
-		SetControllerDevices:   setControllerDevicesHandler,
-		ListControllersHandler: listControllersHandler,
+		AddControllerHandler:         addControllerHandler,
+		SetControllerDevicesHandler:  setControllerDevicesHandler,
+		ListControllersHandler:       listControllersHandler,
+		ListControllerDevicesHandler: listControllerDevicesHandler,
 	}
 	applicationApplication := &application.Application{
 		Auth:  authAuth,
@@ -229,7 +226,9 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	if err != nil {
 		return ComponentTestService{}, err
 	}
-	serviceService := service.NewService(server)
+	clientMock := controller.NewClientMock()
+	scanner := newTestScanner(clientMock, applicationApplication)
+	serviceService := service.NewService(server, scanner)
 	componentTestService := ComponentTestService{
 		Service: serviceService,
 		Config:  conf,
@@ -249,10 +248,12 @@ func BuildUnitTestHydroApplication() (UnitTestHydroApplication, error) {
 	addControllerHandler := hydro.NewAddControllerHandler(mockTransactionProvider, uuidGeneratorMock)
 	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(mockTransactionProvider, uuidGeneratorMock)
 	listControllersHandler := hydro.NewListControllersHandler(mockTransactionProvider)
+	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(mockTransactionProvider)
 	hydroHydro := hydro.Hydro{
-		AddControllerHandler:   addControllerHandler,
-		SetControllerDevices:   setControllerDevicesHandler,
-		ListControllersHandler: listControllersHandler,
+		AddControllerHandler:         addControllerHandler,
+		SetControllerDevicesHandler:  setControllerDevicesHandler,
+		ListControllersHandler:       listControllersHandler,
+		ListControllerDevicesHandler: listControllerDevicesHandler,
 	}
 	unitTestHydroRepositories := UnitTestHydroRepositories{
 		Controller: controllerRepositoryMock,

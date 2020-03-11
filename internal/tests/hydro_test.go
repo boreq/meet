@@ -33,9 +33,17 @@ func TestHydro(t *testing.T) {
 
 	controllers, err = apiHydroListControllers(s)
 	require.NoError(t, err)
+
 	require.Len(t, controllers, 1)
 	require.NotEmpty(t, controllers[0].UUID)
 	require.Equal(t, controllerAddress, controllers[0].Address)
+
+	devices, err := apiHydroListControllerDevices(s, controllers[0].UUID, func(devices []hydro.Device) bool {
+		return len(devices) > 0
+	})
+	require.NoError(t, err)
+
+	require.NotEmpty(t, devices)
 }
 
 const (
@@ -74,6 +82,39 @@ func apiHydroListControllers(s wire.ComponentTestService) ([]hydro.Controller, e
 	}
 
 	return controllers, nil
+}
+
+func apiHydroListControllerDevices(s wire.ComponentTestService, controllerUUID string, waitCondition func([]hydro.Device) bool) ([]hydro.Device, error) {
+	url := apiUrlHydroControllers + fmt.Sprintf("/%s/devices", controllerUUID)
+	interval := 1 * time.Second
+	attempts := 5
+
+	for i := 0; i < attempts; i++ {
+		response, err := apiGet(s, url)
+		if err != nil {
+			fmt.Println(err)
+			<-time.After(interval)
+			continue
+		}
+
+		var devices []hydro.Device
+
+		if err := json.NewDecoder(response.Body).Decode(&devices); err != nil {
+			fmt.Println(err)
+			<-time.After(interval)
+			continue
+		}
+
+		if !waitCondition(devices) {
+			fmt.Println("wait condition not satisfied")
+			<-time.After(interval)
+			continue
+		}
+
+		return devices, nil
+	}
+
+	return nil, errors.New("timeout listing controller devices")
 }
 
 func apiGet(s wire.ComponentTestService, url string) (*http.Response, error) {

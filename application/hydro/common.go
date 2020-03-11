@@ -38,8 +38,9 @@ type TransactionProvider interface {
 }
 
 type Hydro struct {
-	AddControllerHandler *AddControllerHandler
-	SetControllerDevices *SetControllerDevicesHandler
+	AddControllerHandler        *AddControllerHandler
+	SetControllerDevicesHandler *SetControllerDevicesHandler
 
-	ListControllersHandler *ListControllersHandler
+	ListControllersHandler       *ListControllersHandler
+	ListControllerDevicesHandler *ListControllerDevicesHandler
 }

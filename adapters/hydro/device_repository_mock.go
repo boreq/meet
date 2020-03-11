@@ -1,10 +1,11 @@
 package hydro
 
 import (
+	"sort"
+
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/domain"
 	"github.com/boreq/hydro/internal/eventsourcing"
-	"sort"
 )
 
 type DeviceRepositoryMock struct {

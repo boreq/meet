@@ -28,14 +28,6 @@ func BuildTransactableHydroAdapters(tx *bolt.Tx) (*hydro.TransactableAdapters, e
 	return nil, nil
 }
 
-func BuildTestTransactableHydroAdapters(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
-	wire.Build(
-		testAdapterSet,
-	)
-
-	return nil, nil
-}
-
 func BuildAuthForTest(db *bolt.DB) (*auth.Auth, error) {
 	wire.Build(
 		appSet,
@@ -62,6 +54,8 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 		appSet,
 		boltSet,
 		adapterSet,
+		clientSet,
+		scannerSet,
 	)
 
 	return nil, nil
@@ -73,6 +67,8 @@ func BuildComponentTestService(db *bolt.DB, conf *config.Config) (ComponentTestS
 		httpSet,
 		appSet,
 		adapterSet,
+		mockClientSet,
+		testScannerSet,
 
 		wire.Struct(new(ComponentTestService), "*"),
 	)

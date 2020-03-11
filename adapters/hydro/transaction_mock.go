@@ -19,4 +19,3 @@ func NewMockTransactionProvider(transactableAdapters *hydro.TransactableAdapters
 func (p *MockTransactionProvider) Transact(ctx context.Context, handler hydro.TransactionHandler) error {
 	return handler(p.transactableAdapters)
 }
-
