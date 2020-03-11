@@ -3,6 +3,7 @@
 package wire
 
 import (
+	hydroAdapters "github.com/boreq/hydro/adapters/hydro"
 	"github.com/boreq/hydro/application/auth"
 	"github.com/boreq/hydro/application/hydro"
 	"github.com/boreq/hydro/internal/config"
@@ -22,6 +23,14 @@ func BuildTransactableAuthRepositories(tx *bolt.Tx) (*auth.TransactableRepositor
 func BuildTransactableHydroAdapters(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
 	wire.Build(
 		adapterSet,
+	)
+
+	return nil, nil
+}
+
+func BuildTestTransactableHydroAdapters(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
+	wire.Build(
+		testAdapterSet,
 	)
 
 	return nil, nil
@@ -74,4 +83,25 @@ func BuildComponentTestService(db *bolt.DB, conf *config.Config) (ComponentTestS
 type ComponentTestService struct {
 	Service *service.Service
 	Config  *config.Config
+}
+
+func BuildUnitTestHydroApplication() (UnitTestHydroApplication, error) {
+	wire.Build(
+		hydroAppSet,
+		testAdapterSet,
+		wire.Struct(new(UnitTestHydroApplication), "*"),
+		wire.Struct(new(UnitTestHydroRepositories), "*"),
+	)
+
+	return UnitTestHydroApplication{}, nil
+}
+
+type UnitTestHydroApplication struct {
+	Hydro        hydro.Hydro
+	Repositories UnitTestHydroRepositories
+}
+
+type UnitTestHydroRepositories struct {
+	Controller *hydroAdapters.ControllerRepositoryMock
+	Device     *hydroAdapters.DeviceRepositoryMock
 }

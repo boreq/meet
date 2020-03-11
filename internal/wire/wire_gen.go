@@ -51,6 +51,16 @@ func BuildTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, 
 	return transactableAdapters, nil
 }
 
+func BuildTestTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, error) {
+	controllerRepositoryMock := hydro2.NewControllerRepositoryMock()
+	deviceRepositoryMock := hydro2.NewDeviceRepositoryMock()
+	transactableAdapters := &hydro.TransactableAdapters{
+		Controllers: controllerRepositoryMock,
+		Devices:     deviceRepositoryMock,
+	}
+	return transactableAdapters, nil
+}
+
 func BuildAuthForTest(db *bbolt.DB) (*auth.Auth, error) {
 	bcryptPasswordHasher := auth2.NewBcryptPasswordHasher()
 	wireAuthRepositoriesProvider := newAuthRepositoriesProvider()
@@ -227,9 +237,47 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	return componentTestService, nil
 }
 
+func BuildUnitTestHydroApplication() (UnitTestHydroApplication, error) {
+	controllerRepositoryMock := hydro2.NewControllerRepositoryMock()
+	deviceRepositoryMock := hydro2.NewDeviceRepositoryMock()
+	transactableAdapters := &hydro.TransactableAdapters{
+		Controllers: controllerRepositoryMock,
+		Devices:     deviceRepositoryMock,
+	}
+	mockTransactionProvider := hydro2.NewMockTransactionProvider(transactableAdapters)
+	uuidGeneratorMock := hydro2.NewUUIDGeneratorMock()
+	addControllerHandler := hydro.NewAddControllerHandler(mockTransactionProvider, uuidGeneratorMock)
+	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(mockTransactionProvider, uuidGeneratorMock)
+	listControllersHandler := hydro.NewListControllersHandler(mockTransactionProvider)
+	hydroHydro := hydro.Hydro{
+		AddControllerHandler:   addControllerHandler,
+		SetControllerDevices:   setControllerDevicesHandler,
+		ListControllersHandler: listControllersHandler,
+	}
+	unitTestHydroRepositories := UnitTestHydroRepositories{
+		Controller: controllerRepositoryMock,
+		Device:     deviceRepositoryMock,
+	}
+	unitTestHydroApplication := UnitTestHydroApplication{
+		Hydro:        hydroHydro,
+		Repositories: unitTestHydroRepositories,
+	}
+	return unitTestHydroApplication, nil
+}
+
 // wire.go:
 
 type ComponentTestService struct {
 	Service *service.Service
 	Config  *config.Config
+}
+
+type UnitTestHydroApplication struct {
+	Hydro        hydro.Hydro
+	Repositories UnitTestHydroRepositories
+}
+
+type UnitTestHydroRepositories struct {
+	Controller *hydro2.ControllerRepositoryMock
+	Device     *hydro2.DeviceRepositoryMock
 }

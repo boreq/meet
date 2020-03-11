@@ -32,19 +32,19 @@ func TestController(t *testing.T) {
 	require.NoError(t, err)
 
 	err = controller.AddDevice(deviceUUID1)
-	require.NoError(t, err)
+	require.Error(t, err)
 
 	err = controller.AddDevice(deviceUUID2)
 	require.NoError(t, err)
 
 	err = controller.AddDevice(deviceUUID2)
-	require.NoError(t, err)
+	require.Error(t, err)
 
 	err = controller.RemoveDevice(deviceUUID1)
 	require.NoError(t, err)
 
 	err = controller.RemoveDevice(deviceUUID1)
-	require.NoError(t, err)
+	require.Error(t, err)
 
 	require.Equal(t, []domain.DeviceUUID{
 		deviceUUID2,

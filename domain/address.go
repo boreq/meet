@@ -16,6 +16,14 @@ func NewAddress(address string) (Address, error) {
 	}, nil
 }
 
+func MustNewAddress(address string) Address {
+	v, err := NewAddress(address)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 func (a Address) String() string {
 	return a.address
 }

@@ -54,6 +54,24 @@ var adapterSet = wire.NewSet(
 	wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGenerator)),
 )
 
+//lint:ignore U1000 because
+var testAdapterSet = wire.NewSet(
+	// hydro
+	hydroAdapters.NewMockTransactionProvider,
+	wire.Bind(new(hydro.TransactionProvider), new(*hydroAdapters.MockTransactionProvider)),
+
+	wire.Struct(new(hydro.TransactableAdapters), "*"),
+
+	hydroAdapters.NewControllerRepositoryMock,
+	wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepositoryMock)),
+
+	hydroAdapters.NewDeviceRepositoryMock,
+	wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepositoryMock)),
+
+	hydroAdapters.NewUUIDGeneratorMock,
+	wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGeneratorMock)),
+)
+
 type authRepositoriesProvider struct {
 }
 
@@ -75,3 +93,4 @@ func newHydroAdaptersProvider() *hydroAdaptersProvider {
 func (p *hydroAdaptersProvider) Provide(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
 	return BuildTransactableHydroAdapters(tx)
 }
+

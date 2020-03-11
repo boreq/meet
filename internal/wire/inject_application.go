@@ -10,7 +10,12 @@ import (
 //lint:ignore U1000 because
 var appSet = wire.NewSet(
 	wire.Struct(new(application.Application), "*"),
+	authAppSet,
+	hydroAppSet,
+)
 
+//lint:ignore U1000 because
+var authAppSet = wire.NewSet(
 	wire.Struct(new(auth.Auth), "*"),
 	auth.NewRegisterInitialHandler,
 	auth.NewLoginHandler,
@@ -21,7 +26,10 @@ var appSet = wire.NewSet(
 	auth.NewRegisterHandler,
 	auth.NewRemoveHandler,
 	auth.NewSetPasswordHandler,
+)
 
+//lint:ignore U1000 because
+var hydroAppSet = wire.NewSet(
 	wire.Struct(new(hydro.Hydro), "*"),
 	hydro.NewAddControllerHandler,
 	hydro.NewListControllersHandler,

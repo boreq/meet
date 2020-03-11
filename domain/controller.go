@@ -54,9 +54,8 @@ func (c *Controller) AddDevice(deviceUUID DeviceUUID) error {
 		return errors.New("zero value of device uuid")
 	}
 
-	// idempotence
 	if c.hasDevice(deviceUUID) {
-		return nil
+		return errors.New("this device already exists")
 	}
 
 	return c.update(DeviceAdded{deviceUUID})
@@ -67,9 +66,8 @@ func (c *Controller) RemoveDevice(deviceUUID DeviceUUID) error {
 		return errors.New("zero value of device uuid")
 	}
 
-	// idempotence
 	if !c.hasDevice(deviceUUID) {
-		return nil
+		return errors.New("this device does not exist")
 	}
 
 	return c.update(DeviceRemoved{deviceUUID})
