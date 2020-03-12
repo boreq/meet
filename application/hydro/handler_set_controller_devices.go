@@ -68,7 +68,13 @@ func (h *SetControllerDevicesHandler) Execute(ctx context.Context, cmd SetContro
 			//}
 		}
 
-		return a.Controllers.Save(controller)
+		if controller.HasChanges() {
+			if err := a.Controllers.Save(controller); err != nil {
+				return errors.Wrap(err, "could not save the controller")
+			}
+		}
+
+		return nil
 	})
 }
 

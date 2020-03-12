@@ -96,6 +96,10 @@ func (c *Controller) Devices() []DeviceUUID {
 	return tmp
 }
 
+func (c *Controller) HasChanges() bool {
+	return c.es.HasChanges()
+}
+
 func (c *Controller) PopChanges() eventsourcing.EventSourcingEvents {
 	return c.es.PopChanges()
 }
