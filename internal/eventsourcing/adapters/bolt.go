@@ -3,6 +3,7 @@ package adapters
 import (
 	"encoding/binary"
 	"encoding/json"
+
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/internal/eventsourcing"
 	bolt "go.etcd.io/bbolt"

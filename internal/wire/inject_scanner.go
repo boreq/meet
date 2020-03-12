@@ -13,6 +13,7 @@ var scannerSet = wire.NewSet(
 	newScanner,
 )
 
+//lint:ignore U1000 because
 var testScannerSet = wire.NewSet(
 	newTestScanner,
 )

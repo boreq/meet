@@ -66,7 +66,7 @@ var controllerEventMapping = eventsourcing.Mapping{
 			}
 
 			return domain.DeviceAdded{
-				DeviceUUID:deviceUUID,
+				DeviceUUID: deviceUUID,
 			}, nil
 		},
 	},
@@ -92,7 +92,7 @@ var controllerEventMapping = eventsourcing.Mapping{
 			}
 
 			return domain.DeviceRemoved{
-				DeviceUUID:deviceUUID,
+				DeviceUUID: deviceUUID,
 			}, nil
 		},
 	},

@@ -2,6 +2,7 @@ package hydro
 
 import (
 	"fmt"
+
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/application/hydro"
 	"github.com/boreq/hydro/domain"
@@ -119,36 +120,36 @@ func (r *DeviceRepository) putControllerMapping(controllerUUID domain.Controller
 	return nil
 }
 
-func (r *DeviceRepository) removeControllerMapping(deviceUUID domain.DeviceUUID) error {
-	bucket, err := createBucket(r.tx, [][]byte{
-		[]byte(devicesMappingBucket),
-	})
-	if err != nil {
-		return errors.Wrap(err, "could not create a bucket")
-	}
-
-	if err := bucket.Delete([]byte(deviceUUID.String())); err != nil {
-		return errors.Wrap(err, "could not put the mapping entry")
-	}
-
-	return nil
-}
-
-func (r *DeviceRepository) getControllerMapping(deviceUUID domain.DeviceUUID) (domain.ControllerUUID, error) {
-	bucket := getBucket(r.tx, [][]byte{
-		[]byte(devicesMappingBucket),
-	})
-	if bucket == nil {
-		return domain.ControllerUUID{}, errors.Wrap(hydro.ErrDeviceNotFound, "mapping does not exist")
-	}
-
-	value := bucket.Get([]byte(deviceUUID.String()))
-	if value == nil {
-		return domain.ControllerUUID{}, errors.New("invalid mapping, nil value")
-	}
-
-	return domain.NewControllerUUID(string(value))
-}
+//func (r *DeviceRepository) removeControllerMapping(deviceUUID domain.DeviceUUID) error {
+//	bucket, err := createBucket(r.tx, [][]byte{
+//		[]byte(devicesMappingBucket),
+//	})
+//	if err != nil {
+//		return errors.Wrap(err, "could not create a bucket")
+//	}
+//
+//	if err := bucket.Delete([]byte(deviceUUID.String())); err != nil {
+//		return errors.Wrap(err, "could not put the mapping entry")
+//	}
+//
+//	return nil
+//}
+//
+//func (r *DeviceRepository) getControllerMapping(deviceUUID domain.DeviceUUID) (domain.ControllerUUID, error) {
+//	bucket := getBucket(r.tx, [][]byte{
+//		[]byte(devicesMappingBucket),
+//	})
+//	if bucket == nil {
+//		return domain.ControllerUUID{}, errors.Wrap(hydro.ErrDeviceNotFound, "mapping does not exist")
+//	}
+//
+//	value := bucket.Get([]byte(deviceUUID.String()))
+//	if value == nil {
+//		return domain.ControllerUUID{}, errors.New("invalid mapping, nil value")
+//	}
+//
+//	return domain.NewControllerUUID(string(value))
+//}
 
 func getBucket(tx *bolt.Tx, bucketNames [][]byte) *bolt.Bucket {
 	bucket := tx.Bucket(bucketNames[0])

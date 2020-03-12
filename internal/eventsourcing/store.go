@@ -2,6 +2,7 @@ package eventsourcing
 
 import (
 	"fmt"
+
 	"github.com/boreq/errors"
 )
 

@@ -27,4 +27,3 @@ func (m *MemoryPersistenceAdapter) GetEvents(aggregateUUID eventsourcing.Aggrega
 	}
 	return m.events[aggregateUUID], nil
 }
-
