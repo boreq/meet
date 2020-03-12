@@ -1,8 +1,6 @@
 package hydro
 
 import (
-	"fmt"
-
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/application/hydro"
 	"github.com/boreq/hydro/domain"
@@ -48,8 +46,6 @@ func (r *DeviceRepository) ListByController(controllerUUID domain.ControllerUUID
 		if err != nil {
 			return errors.Wrap(err, "could not create a device uuid from the key")
 		}
-
-		fmt.Println(string(key))
 
 		device, err := r.get(controllerUUID, deviceUUID)
 		if err != nil {
