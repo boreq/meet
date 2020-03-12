@@ -20,6 +20,10 @@ func TestAdapters(t *testing.T) {
 		TestRunner TestRunner
 	}{
 		{
+			Name:       "memory",
+			TestRunner: RunTestMemory,
+		},
+		{
 			Name:       "bolt",
 			TestRunner: RunTestBolt,
 		},
@@ -32,6 +36,10 @@ func TestAdapters(t *testing.T) {
 		{
 			Name: "save_empty_events",
 			Test: testSaveEmptyEvents,
+		},
+		{
+			Name: "test_save_events",
+			Test: testSaveEvents,
 		},
 	}
 
@@ -51,6 +59,34 @@ func testSaveEmptyEvents(t *testing.T, adapter eventsourcing.PersistenceAdapter)
 
 	err := adapter.SaveEvents(uuid, nil)
 	require.Equal(t, eventsourcing.EmptyEventsErr, err)
+}
+
+func testSaveEvents(t *testing.T, adapter eventsourcing.PersistenceAdapter) {
+	aggregateUUID := someAggregateUUID()
+
+	events := []eventsourcing.PersistedEvent{
+		{
+			EventPayload:     nil,
+			EventType:        "some_event",
+			AggregateVersion: 0,
+		},
+		{
+			EventPayload:     nil,
+			EventType:        "some_event",
+			AggregateVersion: 1,
+		},
+	}
+
+	persistedEvents, err := adapter.GetEvents(aggregateUUID)
+	require.Equal(t, eventsourcing.EventsNotFound, err)
+	require.Empty(t, persistedEvents)
+
+	err = adapter.SaveEvents(aggregateUUID, events)
+	require.NoError(t, err)
+
+	persistedEvents, err = adapter.GetEvents(aggregateUUID)
+	require.NoError(t, err)
+	require.Equal(t, events, persistedEvents)
 }
 
 func someAggregateUUID() eventsourcing.AggregateUUID {

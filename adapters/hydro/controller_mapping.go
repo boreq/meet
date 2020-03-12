@@ -13,7 +13,7 @@ var controllerEventMapping = eventsourcing.Mapping{
 		Marshal: func(event eventsourcing.Event) ([]byte, error) {
 			e := event.(domain.ControllerCreated)
 
-			transportEvent := created{
+			transportEvent := controllerCreated{
 				UUID:    e.UUID.String(),
 				Address: e.Address.String(),
 			}
@@ -21,7 +21,7 @@ var controllerEventMapping = eventsourcing.Mapping{
 			return json.Marshal(transportEvent)
 		},
 		Unmarshal: func(bytes []byte) (eventsourcing.Event, error) {
-			var transportEvent created
+			var transportEvent controllerCreated
 
 			if err := json.Unmarshal(bytes, &transportEvent); err != nil {
 				return nil, errors.Wrap(err, "could not unmarshal json")
@@ -43,9 +43,70 @@ var controllerEventMapping = eventsourcing.Mapping{
 			}, nil
 		},
 	},
+	"device_added_v1": eventsourcing.EventMapping{
+		Marshal: func(event eventsourcing.Event) ([]byte, error) {
+			e := event.(domain.DeviceAdded)
+
+			transportEvent := deviceAdded{
+				DeviceUUID: e.DeviceUUID.String(),
+			}
+
+			return json.Marshal(transportEvent)
+		},
+		Unmarshal: func(bytes []byte) (eventsourcing.Event, error) {
+			var transportEvent deviceAdded
+
+			if err := json.Unmarshal(bytes, &transportEvent); err != nil {
+				return nil, errors.Wrap(err, "could not unmarshal json")
+			}
+
+			deviceUUID, err := domain.NewDeviceUUID(transportEvent.DeviceUUID)
+			if err != nil {
+				return nil, errors.Wrap(err, "could not create a device uuid")
+			}
+
+			return domain.DeviceAdded{
+				DeviceUUID:deviceUUID,
+			}, nil
+		},
+	},
+	"device_removed_v1": eventsourcing.EventMapping{
+		Marshal: func(event eventsourcing.Event) ([]byte, error) {
+			e := event.(domain.DeviceRemoved)
+
+			transportEvent := deviceRemoved{
+				DeviceUUID: e.DeviceUUID.String(),
+			}
+
+			return json.Marshal(transportEvent)
+		},
+		Unmarshal: func(bytes []byte) (eventsourcing.Event, error) {
+			var transportEvent deviceRemoved
+			if err := json.Unmarshal(bytes, &transportEvent); err != nil {
+				return nil, errors.Wrap(err, "could not unmarshal json")
+			}
+
+			deviceUUID, err := domain.NewDeviceUUID(transportEvent.DeviceUUID)
+			if err != nil {
+				return nil, errors.Wrap(err, "could not create a device uuid")
+			}
+
+			return domain.DeviceRemoved{
+				DeviceUUID:deviceUUID,
+			}, nil
+		},
+	},
 }
 
-type created struct {
+type controllerCreated struct {
 	UUID    string `json:"uuid"`
 	Address string `json:"address"`
+}
+
+type deviceAdded struct {
+	DeviceUUID string `json:"device_uuid"`
+}
+
+type deviceRemoved struct {
+	DeviceUUID string `json:"device_uuid"`
 }

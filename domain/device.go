@@ -103,6 +103,10 @@ func (d *Device) PopChanges() eventsourcing.EventSourcingEvents {
 	return d.es.PopChanges()
 }
 
+func (d *Device) String() string {
+	return fmt.Sprintf("uuid=%s id=%s", d.uuid, d.id)
+}
+
 func (d *Device) update(event eventsourcing.Event) error {
 	switch e := event.(type) {
 	case DeviceCreated:

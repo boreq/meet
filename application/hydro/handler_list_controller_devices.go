@@ -24,7 +24,7 @@ func NewListControllerDevicesHandler(transactionProvider TransactionProvider) *L
 
 func (h *ListControllerDevicesHandler) Execute(ctx context.Context, query ListControllerDevices) (devices []*domain.Device, err error) {
 	err = h.transactionProvider.Transact(ctx, func(t *TransactableAdapters) error {
-		_, err = t.Controllers.Get(query.ControllerUUID) // todo remove?
+		_, err = t.Controllers.Get(query.ControllerUUID)
 		if err != nil {
 			if errors.Is(err, ErrControllerNotFound) {
 				return err

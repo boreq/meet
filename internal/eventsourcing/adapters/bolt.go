@@ -3,7 +3,6 @@ package adapters
 import (
 	"encoding/binary"
 	"encoding/json"
-
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/internal/eventsourcing"
 	bolt "go.etcd.io/bbolt"
@@ -29,7 +28,7 @@ func (b *BoltPersistenceAdapter) SaveEvents(uuid eventsourcing.AggregateUUID, ev
 		return eventsourcing.EmptyEventsErr
 	}
 
-	bucket, err := b.createBucket(uuid)
+	bucket, err := b.createAggregateBucket(uuid)
 	if err != nil {
 		return errors.Wrap(err, "could not get a bucket")
 	}
@@ -55,10 +54,10 @@ func (b *BoltPersistenceAdapter) SaveEvents(uuid eventsourcing.AggregateUUID, ev
 }
 
 func (b *BoltPersistenceAdapter) GetEvents(uuid eventsourcing.AggregateUUID) ([]eventsourcing.PersistedEvent, error) {
-	bucket, err := b.getBucket(uuid)
+	bucket, err := b.getAggregateBucket(uuid)
 	if err != nil {
 		if errors.Is(err, eventsourcing.EventsNotFound) {
-			return nil, nil
+			return nil, err
 		}
 		return nil, errors.Wrap(err, "could not get a bucket")
 	}
@@ -82,46 +81,26 @@ func (b *BoltPersistenceAdapter) GetEvents(uuid eventsourcing.AggregateUUID) ([]
 	}
 
 	return persistedEvents, nil
-
 }
 
-func (b *BoltPersistenceAdapter) createBucket(uuid eventsourcing.AggregateUUID) (bucket *bolt.Bucket, err error) {
+func (b *BoltPersistenceAdapter) createAggregateBucket(uuid eventsourcing.AggregateUUID) (bucket *bolt.Bucket, err error) {
 	bucketNames := b.pathFunc(uuid)
 	if len(bucketNames) == 0 {
 		return nil, errors.New("path func returned an empty slice")
 	}
 
-	bucket, err = b.tx.CreateBucketIfNotExists(bucketNames[0])
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create a bucket")
-	}
-
-	for i := 1; i < len(bucketNames); i++ {
-		bucket, err = bucket.CreateBucketIfNotExists(bucketNames[i])
-		if err != nil {
-			return nil, errors.Wrap(err, "could not create a bucket")
-		}
-	}
-
-	return bucket, nil
+	return b.createBucket(bucketNames)
 }
 
-func (b *BoltPersistenceAdapter) getBucket(uuid eventsourcing.AggregateUUID) (bucket *bolt.Bucket, err error) {
+func (b *BoltPersistenceAdapter) getAggregateBucket(uuid eventsourcing.AggregateUUID) (*bolt.Bucket, error) {
 	bucketNames := b.pathFunc(uuid)
 	if len(bucketNames) == 0 {
 		return nil, errors.New("path func returned an empty slice")
 	}
 
-	bucket = b.tx.Bucket(bucketNames[0])
+	bucket := b.getBucket(bucketNames)
 	if bucket == nil {
 		return nil, eventsourcing.EventsNotFound
-	}
-
-	for i := 1; i < len(bucketNames); i++ {
-		bucket = bucket.Bucket(bucketNames[i])
-		if bucket == nil {
-			return nil, eventsourcing.EventsNotFound
-		}
 	}
 
 	return bucket, nil
@@ -143,6 +122,39 @@ func (b *BoltPersistenceAdapter) validateEvents(bucket *bolt.Bucket, events []ev
 	//}
 
 	return nil
+}
+
+func (b *BoltPersistenceAdapter) getBucket(bucketNames []BucketName) *bolt.Bucket {
+	bucket := b.tx.Bucket(bucketNames[0])
+
+	if bucket == nil {
+		return nil
+	}
+
+	for i := 1; i < len(bucketNames); i++ {
+		bucket = bucket.Bucket(bucketNames[i])
+		if bucket == nil {
+			return nil
+		}
+	}
+
+	return bucket
+}
+
+func (b *BoltPersistenceAdapter) createBucket(bucketNames []BucketName) (bucket *bolt.Bucket, err error) {
+	bucket, err = b.tx.CreateBucketIfNotExists(bucketNames[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create a bucket")
+	}
+
+	for i := 1; i < len(bucketNames); i++ {
+		bucket, err = bucket.CreateBucketIfNotExists(bucketNames[i])
+		if err != nil {
+			return nil, errors.Wrap(err, "could not create a bucket")
+		}
+	}
+
+	return bucket, nil
 }
 
 func toKey(version eventsourcing.AggregateVersion) []byte {

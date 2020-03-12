@@ -20,9 +20,10 @@ type ControllerRepository interface {
 	Save(controller *domain.Controller) error
 }
 
+var ErrDeviceNotFound = errors.New("device not found")
+
 type DeviceRepository interface {
 	ListByController(uuid domain.ControllerUUID) ([]*domain.Device, error)
-	Remove(uuid domain.DeviceUUID) error
 	Save(device *domain.Device) error
 }
 

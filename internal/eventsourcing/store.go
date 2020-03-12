@@ -2,7 +2,6 @@ package eventsourcing
 
 import (
 	"fmt"
-
 	"github.com/boreq/errors"
 )
 
@@ -43,8 +42,8 @@ type PersistedEvent struct {
 }
 
 type PersistenceAdapter interface {
-	SaveEvents(uuid AggregateUUID, events []PersistedEvent) error
-	GetEvents(uuid AggregateUUID) ([]PersistedEvent, error)
+	SaveEvents(aggregateUUID AggregateUUID, events []PersistedEvent) error
+	GetEvents(aggregateUUID AggregateUUID) ([]PersistedEvent, error)
 }
 
 type Mapping map[EventType]EventMapping

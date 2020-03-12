@@ -12,11 +12,19 @@ func NewMemoryPersistenceAdapter() *MemoryPersistenceAdapter {
 	}
 }
 
-func (m *MemoryPersistenceAdapter) SaveEvents(uuid eventsourcing.AggregateUUID, events []eventsourcing.PersistedEvent) error {
-	m.events[uuid] = append(m.events[uuid], events...)
+func (m *MemoryPersistenceAdapter) SaveEvents(aggregateUUID eventsourcing.AggregateUUID, events []eventsourcing.PersistedEvent) error {
+	if len(events) == 0 {
+		return eventsourcing.EmptyEventsErr
+	}
+
+	m.events[aggregateUUID] = append(m.events[aggregateUUID], events...)
 	return nil
 }
 
-func (m *MemoryPersistenceAdapter) GetEvents(uuid eventsourcing.AggregateUUID) ([]eventsourcing.PersistedEvent, error) {
-	return m.events[uuid], nil
+func (m *MemoryPersistenceAdapter) GetEvents(aggregateUUID eventsourcing.AggregateUUID) ([]eventsourcing.PersistedEvent, error) {
+	if len(m.events[aggregateUUID]) == 0 {
+		return nil, eventsourcing.EventsNotFound
+	}
+	return m.events[aggregateUUID], nil
 }
+

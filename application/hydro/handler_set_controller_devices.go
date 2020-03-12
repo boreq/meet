@@ -2,7 +2,6 @@ package hydro
 
 import (
 	"context"
-
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/domain"
 	"github.com/boreq/hydro/domain/diff"
@@ -62,9 +61,10 @@ func (h *SetControllerDevicesHandler) Execute(ctx context.Context, cmd SetContro
 				return errors.Wrap(err, "could not remove a device from the controller")
 			}
 
-			if err := a.Devices.Remove(device.UUID()); err != nil {
-				return errors.Wrap(err, "could not remove a device")
-			}
+			// todo
+			//if err := a.Devices.Remove(device.UUID()); err != nil {
+			//	return errors.Wrap(err, "could not remove a device")
+			//}
 		}
 
 		return a.Controllers.Save(controller)

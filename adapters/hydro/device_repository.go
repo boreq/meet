@@ -1,6 +1,7 @@
 package hydro
 
 import (
+	"fmt"
 	"github.com/boreq/errors"
 	"github.com/boreq/hydro/application/hydro"
 	"github.com/boreq/hydro/domain"
@@ -10,6 +11,7 @@ import (
 )
 
 const devicesBucket = "devices"
+const devicesMappingBucket = "devices_mapping"
 
 type DeviceRepository struct {
 	tx *bolt.Tx
@@ -33,6 +35,11 @@ func (r *DeviceRepository) ListByController(controllerUUID domain.ControllerUUID
 		return nil, hydro.ErrControllerNotFound
 	}
 
+	bucket = bucket.Bucket([]byte(devicesBucket))
+	if bucket == nil {
+		return nil, nil
+	}
+
 	var devices []*domain.Device
 
 	if err := bucket.ForEach(func(key, value []byte) error {
@@ -40,6 +47,9 @@ func (r *DeviceRepository) ListByController(controllerUUID domain.ControllerUUID
 		if err != nil {
 			return errors.Wrap(err, "could not create a device uuid from the key")
 		}
+
+		fmt.Println(string(key))
+
 		device, err := r.get(controllerUUID, deviceUUID)
 		if err != nil {
 			return errors.Wrap(err, "could not get a device")
@@ -55,11 +65,11 @@ func (r *DeviceRepository) ListByController(controllerUUID domain.ControllerUUID
 	return devices, nil
 }
 
-func (r *DeviceRepository) Remove(uuid domain.DeviceUUID) error {
-	return errors.New("not implemented")
-}
-
 func (r *DeviceRepository) Save(device *domain.Device) error {
+	if err := r.putControllerMapping(device.ControllerUUID(), device.UUID()); err != nil {
+		return errors.Wrap(err, "could not put the controller mapping")
+	}
+
 	return r.getEventStore(device.ControllerUUID()).
 		SaveEvents(r.convertUUID(device.UUID()), device.PopChanges())
 }
@@ -87,11 +97,57 @@ func (r *DeviceRepository) getEventStore(controllerUUID domain.ControllerUUID) *
 			[]byte("events"),
 		}
 	})
-	return eventsourcing.NewEventStore(controllerEventMapping, persistenceAdapter)
+	return eventsourcing.NewEventStore(deviceEventMapping, persistenceAdapter)
 }
 
 func (r *DeviceRepository) convertUUID(uuid domain.DeviceUUID) eventsourcing.AggregateUUID {
 	return eventsourcing.AggregateUUID(uuid.String())
+}
+
+func (r *DeviceRepository) putControllerMapping(controllerUUID domain.ControllerUUID, deviceUUID domain.DeviceUUID) error {
+	bucket, err := createBucket(r.tx, [][]byte{
+		[]byte(devicesMappingBucket),
+	})
+	if err != nil {
+		return errors.Wrap(err, "could not create a bucket")
+	}
+
+	if err := bucket.Put([]byte(deviceUUID.String()), []byte(controllerUUID.String())); err != nil {
+		return errors.Wrap(err, "could not put the mapping entry")
+	}
+
+	return nil
+}
+
+func (r *DeviceRepository) removeControllerMapping(deviceUUID domain.DeviceUUID) error {
+	bucket, err := createBucket(r.tx, [][]byte{
+		[]byte(devicesMappingBucket),
+	})
+	if err != nil {
+		return errors.Wrap(err, "could not create a bucket")
+	}
+
+	if err := bucket.Delete([]byte(deviceUUID.String())); err != nil {
+		return errors.Wrap(err, "could not put the mapping entry")
+	}
+
+	return nil
+}
+
+func (r *DeviceRepository) getControllerMapping(deviceUUID domain.DeviceUUID) (domain.ControllerUUID, error) {
+	bucket := getBucket(r.tx, [][]byte{
+		[]byte(devicesMappingBucket),
+	})
+	if bucket == nil {
+		return domain.ControllerUUID{}, errors.Wrap(hydro.ErrDeviceNotFound, "mapping does not exist")
+	}
+
+	value := bucket.Get([]byte(deviceUUID.String()))
+	if value == nil {
+		return domain.ControllerUUID{}, errors.New("invalid mapping, nil value")
+	}
+
+	return domain.NewControllerUUID(string(value))
 }
 
 func getBucket(tx *bolt.Tx, bucketNames [][]byte) *bolt.Bucket {
@@ -109,4 +165,20 @@ func getBucket(tx *bolt.Tx, bucketNames [][]byte) *bolt.Bucket {
 	}
 
 	return bucket
+}
+
+func createBucket(tx *bolt.Tx, bucketNames [][]byte) (bucket *bolt.Bucket, err error) {
+	bucket, err = tx.CreateBucketIfNotExists(bucketNames[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create a bucket")
+	}
+
+	for i := 1; i < len(bucketNames); i++ {
+		bucket, err = bucket.CreateBucketIfNotExists(bucketNames[i])
+		if err != nil {
+			return nil, errors.Wrap(err, "could not create a bucket")
+		}
+	}
+
+	return bucket, nil
 }

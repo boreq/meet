@@ -36,13 +36,6 @@ func (d DeviceRepositoryMock) ListByController(uuid domain.ControllerUUID) ([]*d
 	return devices, nil
 }
 
-func (d DeviceRepositoryMock) Remove(uuid domain.DeviceUUID) error {
-	for _, subMap := range d.Events {
-		delete(subMap, uuid)
-	}
-	return nil
-}
-
 func (d DeviceRepositoryMock) Save(device *domain.Device) error {
 	if _, ok := d.Events[device.ControllerUUID()]; !ok {
 		d.Events[device.ControllerUUID()] = make(map[domain.DeviceUUID]eventsourcing.EventSourcingEvents)
