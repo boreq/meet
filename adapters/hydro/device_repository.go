@@ -52,7 +52,9 @@ func (r *DeviceRepository) ListByController(controllerUUID domain.ControllerUUID
 			return errors.Wrap(err, "could not get a device")
 		}
 
-		devices = append(devices, device)
+		if !device.Removed() {
+			devices = append(devices, device)
+		}
 
 		return nil
 	}); err != nil {

@@ -30,12 +30,12 @@ func NewSetControllerDevicesHandler(
 
 func (h *SetControllerDevicesHandler) Execute(ctx context.Context, cmd SetControllerDevices) error {
 	return h.transactionProvider.Transact(ctx, func(a *TransactableAdapters) error {
-		controller, err := a.Controllers.Get(cmd.ControllerUUID)
+		_, err := a.Controllers.Get(cmd.ControllerUUID)
 		if err != nil {
 			return errors.Wrap(err, "could not get the controller")
 		}
 
-		devices, err := a.Devices.ListByController(controller.UUID())
+		devices, err := a.Devices.ListByController(cmd.ControllerUUID)
 		if err != nil {
 			return errors.Wrap(err, "could not list the devices")
 		}
@@ -43,34 +43,23 @@ func (h *SetControllerDevicesHandler) Execute(ctx context.Context, cmd SetContro
 		toAdd, toRemove := diff.Devices(devices, cmd.Devices)
 
 		for _, deviceId := range toAdd {
-			device, err := h.newDevice(controller.UUID(), deviceId)
+			device, err := h.newDevice(cmd.ControllerUUID, deviceId)
 			if err != nil {
 				return errors.Wrap(err, "could not create a device")
 			}
 
-			if err := controller.AddDevice(device.UUID()); err != nil {
-				return errors.Wrap(err, "could not add a device to the controller")
-			}
-
 			if err := a.Devices.Save(device); err != nil {
-				return errors.Wrap(err, "could not save the device")
+				return errors.Wrap(err, "could not save the created device")
 			}
 		}
 
 		for _, device := range toRemove {
-			if err := controller.RemoveDevice(device.UUID()); err != nil {
-				return errors.Wrap(err, "could not remove a device from the controller")
+			if err := device.Remove(); err != nil {
+				return errors.Wrap(err, "could not remove the device")
 			}
 
-			// todo
-			//if err := a.Devices.Remove(device.UUID()); err != nil {
-			//	return errors.Wrap(err, "could not remove a device")
-			//}
-		}
-
-		if controller.HasChanges() {
-			if err := a.Controllers.Save(controller); err != nil {
-				return errors.Wrap(err, "could not save the controller")
+			if err := a.Devices.Save(device); err != nil {
+				return errors.Wrap(err, "could not save the removed device")
 			}
 		}
 

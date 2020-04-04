@@ -1,6 +1,8 @@
 package hydro
 
-import "github.com/boreq/hydro/domain"
+import (
+	"github.com/boreq/hydro/domain"
+)
 
 type Controller struct {
 	UUID    string `json:"uuid"`
@@ -8,8 +10,19 @@ type Controller struct {
 }
 
 type Device struct {
-	UUID string `json:"uuid"`
-	ID   string `json:"id"`
+	UUID     string   `json:"uuid"`
+	ID       string   `json:"id"`
+	Schedule []Period `json:"schedule"`
+}
+
+type Period struct {
+	Start Time `json:"start"`
+	End   Time `json:"end"`
+}
+
+type Time struct {
+	Hour   int `json:"hour"`
+	Minute int `json:"minute"`
 }
 
 func toControllers(controllers []*domain.Controller) []Controller {
@@ -37,7 +50,30 @@ func toDevices(devices []*domain.Device) []Device {
 
 func toDevice(device *domain.Device) Device {
 	return Device{
-		UUID: device.UUID().String(),
-		ID:   device.ID().String(),
+		UUID:     device.UUID().String(),
+		ID:       device.ID().String(),
+		Schedule: toSchedule(device.Schedule()),
+	}
+}
+
+func toSchedule(schedule domain.Schedule) []Period {
+	rv := make([]Period, 0)
+	for _, period := range schedule.Periods() {
+		rv = append(rv, toPeriod(period))
+	}
+	return rv
+}
+
+func toPeriod(period domain.Period) Period {
+	return Period{
+		Start: toTime(period.Start()),
+		End:   toTime(period.End()),
+	}
+}
+
+func toTime(time domain.Time) Time {
+	return Time{
+		Hour:   time.Hour(),
+		Minute: time.Minute(),
 	}
 }

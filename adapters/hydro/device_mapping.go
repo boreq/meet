@@ -50,10 +50,28 @@ var deviceEventMapping = eventsourcing.Mapping{
 			}, nil
 		},
 	},
+	"removed_v1": eventsourcing.EventMapping{
+		Marshal: func(event eventsourcing.Event) ([]byte, error) {
+			transportEvent := deviceRemoved{}
+			return json.Marshal(transportEvent)
+		},
+		Unmarshal: func(bytes []byte) (eventsourcing.Event, error) {
+			var transportEvent deviceRemoved
+
+			if err := json.Unmarshal(bytes, &transportEvent); err != nil {
+				return nil, errors.Wrap(err, "could not unmarshal json")
+			}
+
+			return domain.DeviceRemoved{}, nil
+		},
+	},
 }
 
 type deviceCreated struct {
 	UUID           string `json:"uuid"`
 	ControllerUUID string `json:"controllerUUID"`
 	ID             string `json:"deviceID"`
+}
+
+type deviceRemoved struct {
 }

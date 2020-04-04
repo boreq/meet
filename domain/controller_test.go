@@ -20,35 +20,6 @@ func TestController(t *testing.T) {
 
 	require.Equal(t, controllerUUID, controller.UUID())
 	require.Equal(t, address, controller.Address())
-	require.Empty(t, controller.Devices())
-
-	deviceUUID1, err := domain.NewDeviceUUID("device-uuid-1")
-	require.NoError(t, err)
-
-	deviceUUID2, err := domain.NewDeviceUUID("device-uuid-2")
-	require.NoError(t, err)
-
-	err = controller.AddDevice(deviceUUID1)
-	require.NoError(t, err)
-
-	err = controller.AddDevice(deviceUUID1)
-	require.Error(t, err)
-
-	err = controller.AddDevice(deviceUUID2)
-	require.NoError(t, err)
-
-	err = controller.AddDevice(deviceUUID2)
-	require.Error(t, err)
-
-	err = controller.RemoveDevice(deviceUUID1)
-	require.NoError(t, err)
-
-	err = controller.RemoveDevice(deviceUUID1)
-	require.Error(t, err)
-
-	require.Equal(t, []domain.DeviceUUID{
-		deviceUUID2,
-	}, controller.Devices())
 
 	events := controller.PopChanges()
 
@@ -56,15 +27,6 @@ func TestController(t *testing.T) {
 		domain.ControllerCreated{
 			UUID:    controllerUUID,
 			Address: address,
-		},
-		domain.DeviceAdded{
-			DeviceUUID: deviceUUID1,
-		},
-		domain.DeviceAdded{
-			DeviceUUID: deviceUUID2,
-		},
-		domain.DeviceRemoved{
-			DeviceUUID: deviceUUID1,
 		},
 	}, events.Payloads())
 

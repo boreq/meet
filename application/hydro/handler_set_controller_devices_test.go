@@ -44,13 +44,7 @@ func TestSetControllerDevices(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	err = controller.AddDevice(device1.UUID())
-	require.NoError(t, err)
-
-	err = controller.AddDevice(device2.UUID())
-	require.NoError(t, err)
-
-	err = controller.AddDevice(device3.UUID())
+	err = app.Repositories.Controller.Save(controller)
 	require.NoError(t, err)
 
 	err = app.Repositories.Device.Save(device1)
@@ -60,9 +54,6 @@ func TestSetControllerDevices(t *testing.T) {
 	require.NoError(t, err)
 
 	err = app.Repositories.Device.Save(device3)
-	require.NoError(t, err)
-
-	err = app.Repositories.Controller.Save(controller)
 	require.NoError(t, err)
 
 	deviceID4 := domain.MustNewDeviceID("device4")
@@ -85,37 +76,25 @@ func TestSetControllerDevices(t *testing.T) {
 
 	require.Equal(t,
 		[]eventsourcing.Event{
-			domain.ControllerCreated{
-				UUID:    controllerUUID,
-				Address: controllerAddress,
+			domain.DeviceCreated{
+				UUID:           device1.UUID(),
+				ControllerUUID: controllerUUID,
+				ID:             device1.ID(),
 			},
-			domain.DeviceAdded{
-				DeviceUUID: device1.UUID(),
-			},
-			domain.DeviceAdded{
-				DeviceUUID: device2.UUID(),
-			},
-			domain.DeviceAdded{
-				DeviceUUID: device3.UUID(),
-			},
-			domain.DeviceAdded{
-				DeviceUUID: expectedDevice4UUID,
-			},
-			domain.DeviceAdded{
-				DeviceUUID: expectedDevice5UUID,
-			},
-			domain.DeviceRemoved{
-				DeviceUUID: device1.UUID(),
-			},
-			domain.DeviceRemoved{
-				DeviceUUID: device2.UUID(),
-			},
+			domain.DeviceRemoved{},
 		},
-		app.Repositories.Controller.Events[controllerUUID].Payloads())
+		app.Repositories.Device.Events[controllerUUID][device1.UUID()].Payloads())
 
-	// todo fix when devices are actually removed
-	//require.Empty(t, app.Repositories.Device.Events[controllerUUID][device1.UUID()].Payloads())
-	//require.Empty(t, app.Repositories.Device.Events[controllerUUID][device2.UUID()].Payloads())
+	require.Equal(t,
+		[]eventsourcing.Event{
+			domain.DeviceCreated{
+				UUID:           device2.UUID(),
+				ControllerUUID: controllerUUID,
+				ID:             device2.ID(),
+			},
+			domain.DeviceRemoved{},
+		},
+		app.Repositories.Device.Events[controllerUUID][device2.UUID()].Payloads())
 
 	require.Equal(t,
 		[]eventsourcing.Event{

@@ -54,3 +54,45 @@ func TestDeviceRepository(t *testing.T) {
 	})
 	require.NoError(t, err)
 }
+
+func TestDeviceRepositoryDoesNotListRemovedDevices(t *testing.T) {
+	db, cleanup := fixture.Bolt(t)
+	defer cleanup()
+
+	controllerUUID := domain.MustNewControllerUUID("controller-uuid")
+
+	device, err := domain.NewDevice(
+		domain.MustNewDeviceUUID("device-uuid"),
+		controllerUUID,
+		domain.MustNewDeviceID("device-id"),
+	)
+	require.NoError(t, err)
+
+	removedDevice, err := domain.NewDevice(
+		domain.MustNewDeviceUUID("removed-device-uuid"),
+		controllerUUID,
+		domain.MustNewDeviceID("removed-device-id"),
+	)
+	require.NoError(t, err)
+
+	err = removedDevice.Remove()
+	require.NoError(t, err)
+
+	err = db.Update(func(tx *bbolt.Tx) error {
+		r, err := hydro.NewDeviceRepository(tx)
+		require.NoError(t, err)
+
+		err = r.Save(device)
+		require.NoError(t, err)
+
+		err = r.Save(removedDevice)
+		require.NoError(t, err)
+
+		devices, err := r.ListByController(controllerUUID)
+		require.NoError(t, err)
+		require.Equal(t, []*domain.Device{device}, devices)
+
+		return nil
+	})
+	require.NoError(t, err)
+}

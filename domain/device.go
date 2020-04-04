@@ -13,6 +13,7 @@ type Device struct {
 	id             DeviceID
 	schedule       Schedule
 	mode           DeviceMode
+	removed        bool
 
 	es eventsourcing.EventSourcing
 }
@@ -79,6 +80,16 @@ func (d *Device) SetMode(mode DeviceMode) error {
 	return d.update(event)
 }
 
+func (d *Device) Remove() error {
+	// idempotence
+	if d.removed {
+		return nil
+	}
+
+	event := DeviceRemoved{}
+	return d.update(event)
+}
+
 func (d *Device) UUID() DeviceUUID {
 	return d.uuid
 }
@@ -99,6 +110,10 @@ func (d *Device) Mode() DeviceMode {
 	return d.mode
 }
 
+func (d *Device) Removed() bool {
+	return d.removed
+}
+
 func (d *Device) PopChanges() eventsourcing.EventSourcingEvents {
 	return d.es.PopChanges()
 }
@@ -115,6 +130,8 @@ func (d *Device) update(event eventsourcing.Event) error {
 		d.handleScheduleSet(e)
 	case ModeSet:
 		d.handleModeSet(e)
+	case DeviceRemoved:
+		d.handleDeviceRemoved(e)
 	default:
 		return fmt.Errorf("unsupported event '%T'", event)
 	}
@@ -136,6 +153,10 @@ func (d *Device) handleScheduleSet(e ScheduleSet) {
 
 func (d *Device) handleModeSet(e ModeSet) {
 	d.mode = e.Mode
+}
+
+func (d *Device) handleDeviceRemoved(e DeviceRemoved) {
+	d.removed = true
 }
 
 type DeviceCreated struct {
@@ -162,6 +183,13 @@ type ModeSet struct {
 
 func (c ModeSet) EventType() eventsourcing.EventType {
 	return "mode_set_v1"
+}
+
+type DeviceRemoved struct {
+}
+
+func (c DeviceRemoved) EventType() eventsourcing.EventType {
+	return "removed_v1"
 }
 
 type DeviceMode struct {

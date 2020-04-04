@@ -49,51 +49,12 @@ func NewControllerFromHistory(events []eventsourcing.EventSourcingEvent) (*Contr
 	return controller, nil
 }
 
-func (c *Controller) AddDevice(deviceUUID DeviceUUID) error {
-	if deviceUUID.IsZero() {
-		return errors.New("zero value of device uuid")
-	}
-
-	if c.hasDevice(deviceUUID) {
-		return errors.New("this device already exists")
-	}
-
-	return c.update(DeviceAdded{deviceUUID})
-}
-
-func (c *Controller) RemoveDevice(deviceUUID DeviceUUID) error {
-	if deviceUUID.IsZero() {
-		return errors.New("zero value of device uuid")
-	}
-
-	if !c.hasDevice(deviceUUID) {
-		return errors.New("this device does not exist")
-	}
-
-	return c.update(DeviceRemoved{deviceUUID})
-}
-
-func (c *Controller) hasDevice(deviceUUID DeviceUUID) bool {
-	for _, device := range c.devices {
-		if device == deviceUUID {
-			return true
-		}
-	}
-	return false
-}
-
 func (c *Controller) UUID() ControllerUUID {
 	return c.uuid
 }
 
 func (c *Controller) Address() Address {
 	return c.address
-}
-
-func (c *Controller) Devices() []DeviceUUID {
-	tmp := make([]DeviceUUID, len(c.devices))
-	copy(tmp, c.devices)
-	return tmp
 }
 
 func (c *Controller) HasChanges() bool {
@@ -108,10 +69,6 @@ func (c *Controller) update(event eventsourcing.Event) error {
 	switch e := event.(type) {
 	case ControllerCreated:
 		c.handleCreated(e)
-	case DeviceAdded:
-		c.handleDeviceAdded(e)
-	case DeviceRemoved:
-		c.handleDeviceRemoved(e)
 	default:
 		return fmt.Errorf("unsupported event '%T'", event)
 	}
@@ -124,18 +81,6 @@ func (c *Controller) handleCreated(e ControllerCreated) {
 	c.address = e.Address
 }
 
-func (c *Controller) handleDeviceAdded(e DeviceAdded) {
-	c.devices = append(c.devices, e.DeviceUUID)
-}
-
-func (c *Controller) handleDeviceRemoved(e DeviceRemoved) {
-	for i := len(c.devices) - 1; i >= 0; i-- {
-		if c.devices[i] == e.DeviceUUID {
-			c.devices = append(c.devices[:i], c.devices[i+1:]...)
-		}
-	}
-}
-
 type ControllerCreated struct {
 	UUID    ControllerUUID
 	Address Address
@@ -143,20 +88,4 @@ type ControllerCreated struct {
 
 func (c ControllerCreated) EventType() eventsourcing.EventType {
 	return "created_v1"
-}
-
-type DeviceAdded struct {
-	DeviceUUID DeviceUUID
-}
-
-func (c DeviceAdded) EventType() eventsourcing.EventType {
-	return "device_added_v1"
-}
-
-type DeviceRemoved struct {
-	DeviceUUID DeviceUUID
-}
-
-func (c DeviceRemoved) EventType() eventsourcing.EventType {
-	return "device_removed_v1"
 }
