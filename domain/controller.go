@@ -10,7 +10,6 @@ import (
 type Controller struct {
 	uuid    ControllerUUID
 	address Address
-	devices []DeviceUUID
 
 	es eventsourcing.EventSourcing
 }
