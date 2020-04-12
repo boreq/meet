@@ -7,7 +7,7 @@ import (
 	"github.com/boreq/errors"
 )
 
-var meetingNameRegexp = regexp.MustCompile("^[a-z]+$")
+var meetingNameRegexp = regexp.MustCompile(`^[a-z_\-]+$`)
 
 type MeetingName struct {
 	name string

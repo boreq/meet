@@ -4,6 +4,7 @@ require (
 	github.com/NYTimes/gziphandler v1.1.0
 	github.com/boreq/errors v0.1.0
 	github.com/boreq/guinea v0.0.0-20190218203212-75c10cec45e9
+	github.com/boreq/rest v0.1.0
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/google/wire v0.3.0

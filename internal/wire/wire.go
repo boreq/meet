@@ -5,6 +5,7 @@ package wire
 import (
 	"github.com/boreq/meet/application/auth"
 	"github.com/boreq/meet/application/meet"
+
 	//meetAdapters "github.com/boreq/meet/adapters/meet"
 	"github.com/boreq/meet/internal/config"
 	"github.com/boreq/meet/internal/service"

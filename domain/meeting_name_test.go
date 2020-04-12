@@ -29,8 +29,18 @@ func TestMeetingName(t *testing.T) {
 			ErrorExpected: false,
 		},
 		{
-			Name:          "invalid_special",
+			Name:          "delimited_with_pause",
 			Value:         "meeting-name",
+			ErrorExpected: false,
+		},
+		{
+			Name:          "delimited_with_underscore",
+			Value:         "meeting_name",
+			ErrorExpected: false,
+		},
+		{
+			Name:          "invalid_special",
+			Value:         "meeting$name",
 			ErrorExpected: true,
 		},
 		{

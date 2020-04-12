@@ -41,4 +41,3 @@ func MustNewParticipantUUID(u string) ParticipantUUID {
 	}
 	return v
 }
-

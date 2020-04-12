@@ -41,7 +41,7 @@ var adapterSet = wire.NewSet(
 
 	wire.Struct(new(meet.TransactableAdapters), "*"),
 
-	//newHydroAdaptersProvider,
+	//newMeetAdaptersProvider,
 	//wire.Bind(new(hydroAdapters.AdaptersProvider), new(*meetAdaptersProvider)),
 	//
 	//hydroAdapters.NewControllerRepository,
@@ -83,13 +83,13 @@ func (p *authRepositoriesProvider) Provide(tx *bolt.Tx) (*auth.TransactableRepos
 	return BuildTransactableAuthRepositories(tx)
 }
 
-type meetAdaptersProvider struct {
-}
-
-func newHydroAdaptersProvider() *meetAdaptersProvider {
-	return &meetAdaptersProvider{}
-}
-
-func (p *meetAdaptersProvider) Provide(tx *bolt.Tx) (*meet.TransactableAdapters, error) {
-	return BuildTransactableHydroAdapters(tx)
-}
+//type meetAdaptersProvider struct {
+//}
+//
+//func newMeetAdaptersProvider() *meetAdaptersProvider {
+//	return &meetAdaptersProvider{}
+//}
+//
+//func (p *meetAdaptersProvider) Provide(tx *bolt.Tx) (*meet.TransactableAdapters, error) {
+//	return BuildTransactableHydroAdapters(tx)
+//}
