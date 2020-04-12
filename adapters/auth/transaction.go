@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/application/auth"
+	"github.com/boreq/meet/application/auth"
 	bolt "go.etcd.io/bbolt"
 )
 

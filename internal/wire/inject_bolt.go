@@ -1,8 +1,8 @@
 package wire
 
 import (
-	"github.com/boreq/hydro/adapters"
-	"github.com/boreq/hydro/internal/config"
+	"github.com/boreq/meet/adapters"
+	"github.com/boreq/meet/internal/config"
 	"github.com/google/wire"
 	bolt "go.etcd.io/bbolt"
 )

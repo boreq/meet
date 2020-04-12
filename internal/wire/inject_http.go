@@ -3,8 +3,8 @@ package wire
 import (
 	"net/http"
 
-	"github.com/boreq/hydro/internal/config"
-	httpPort "github.com/boreq/hydro/ports/http"
+	"github.com/boreq/meet/internal/config"
+	httpPort "github.com/boreq/meet/ports/http"
 	"github.com/google/wire"
 )
 

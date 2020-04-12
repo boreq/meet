@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/internal/fixture"
-	"github.com/boreq/hydro/internal/wire"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/internal/fixture"
+	"github.com/boreq/meet/internal/wire"
 	"github.com/stretchr/testify/require"
 )
 

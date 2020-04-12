@@ -1,11 +1,11 @@
 package application
 
 import (
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/application/hydro"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/application/meet"
 )
 
 type Application struct {
-	Auth  auth.Auth
-	Hydro hydro.Hydro
+	Auth auth.Auth
+	Meet meet.Meet
 }

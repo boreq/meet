@@ -6,7 +6,7 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/internal/logging"
+	"github.com/boreq/meet/internal/logging"
 	"github.com/rs/cors"
 )
 

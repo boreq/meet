@@ -22,42 +22,23 @@ func newUUID(u string) (uuid, error) {
 	return uuid{u: u}, nil
 }
 
-type ControllerUUID struct {
+type ParticipantUUID struct {
 	uuid
 }
 
-func NewControllerUUID(u string) (ControllerUUID, error) {
+func NewParticipantUUID(u string) (ParticipantUUID, error) {
 	uuid, err := newUUID(u)
 	if err != nil {
-		return ControllerUUID{}, errors.New("could not create a controller UUID")
+		return ParticipantUUID{}, errors.New("could not create a participant UUID")
 	}
-	return ControllerUUID{uuid}, nil
+	return ParticipantUUID{uuid}, nil
 }
 
-func MustNewControllerUUID(u string) ControllerUUID {
-	v, err := NewControllerUUID(u)
+func MustNewParticipantUUID(u string) ParticipantUUID {
+	v, err := NewParticipantUUID(u)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-type DeviceUUID struct {
-	uuid
-}
-
-func NewDeviceUUID(u string) (DeviceUUID, error) {
-	uuid, err := newUUID(u)
-	if err != nil {
-		return DeviceUUID{}, errors.New("could not create a device UUID")
-	}
-	return DeviceUUID{uuid}, nil
-}
-
-func MustNewDeviceUUID(u string) DeviceUUID {
-	v, err := NewDeviceUUID(u)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}

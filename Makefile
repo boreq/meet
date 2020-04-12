@@ -1,5 +1,5 @@
 BUILD_DIRECTORY=_build
-PROGRAM_NAME=hydro
+PROGRAM_NAME=meet
 
 all: fmt test lint build
 

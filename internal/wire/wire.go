@@ -3,11 +3,11 @@
 package wire
 
 import (
-	hydroAdapters "github.com/boreq/hydro/adapters/hydro"
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/application/hydro"
-	"github.com/boreq/hydro/internal/config"
-	"github.com/boreq/hydro/internal/service"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/application/meet"
+	//meetAdapters "github.com/boreq/meet/adapters/meet"
+	"github.com/boreq/meet/internal/config"
+	"github.com/boreq/meet/internal/service"
 	"github.com/google/wire"
 	bolt "go.etcd.io/bbolt"
 )
@@ -20,7 +20,7 @@ func BuildTransactableAuthRepositories(tx *bolt.Tx) (*auth.TransactableRepositor
 	return nil, nil
 }
 
-func BuildTransactableHydroAdapters(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
+func BuildTransactableHydroAdapters(tx *bolt.Tx) (*meet.TransactableAdapters, error) {
 	wire.Build(
 		adapterSet,
 	)
@@ -54,8 +54,6 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 		appSet,
 		boltSet,
 		adapterSet,
-		clientSet,
-		scannerSet,
 	)
 
 	return nil, nil
@@ -67,8 +65,6 @@ func BuildComponentTestService(db *bolt.DB, conf *config.Config) (ComponentTestS
 		httpSet,
 		appSet,
 		adapterSet,
-		mockClientSet,
-		testScannerSet,
 
 		wire.Struct(new(ComponentTestService), "*"),
 	)
@@ -81,23 +77,23 @@ type ComponentTestService struct {
 	Config  *config.Config
 }
 
-func BuildUnitTestHydroApplication() (UnitTestHydroApplication, error) {
+func BuildUnitTestHydroApplication() (UnitTestMeetApplication, error) {
 	wire.Build(
-		hydroAppSet,
-		testAdapterSet,
-		wire.Struct(new(UnitTestHydroApplication), "*"),
-		wire.Struct(new(UnitTestHydroRepositories), "*"),
+		meetAppSet,
+		//testAdapterSet,
+		wire.Struct(new(UnitTestMeetApplication), "*"),
+		wire.Struct(new(UnitTestMeetRepositories), "*"),
 	)
 
-	return UnitTestHydroApplication{}, nil
+	return UnitTestMeetApplication{}, nil
 }
 
-type UnitTestHydroApplication struct {
-	Hydro        hydro.Hydro
-	Repositories UnitTestHydroRepositories
+type UnitTestMeetApplication struct {
+	Meet         meet.Meet
+	Repositories UnitTestMeetRepositories
 }
 
-type UnitTestHydroRepositories struct {
-	Controller *hydroAdapters.ControllerRepositoryMock
-	Device     *hydroAdapters.DeviceRepositoryMock
+type UnitTestMeetRepositories struct {
+	//Controller *meetAdapters.ControllerRepositoryMock
+	//Device     *meetAdapters.DeviceRepositoryMock
 }

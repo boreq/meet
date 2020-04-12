@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/internal/logging"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/internal/logging"
 	bolt "go.etcd.io/bbolt"
 )
 

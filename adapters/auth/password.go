@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/boreq/hydro/application/auth"
+	"github.com/boreq/meet/application/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 

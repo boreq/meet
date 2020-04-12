@@ -3,9 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/boreq/hydro/application"
-	"github.com/boreq/hydro/ports/http/frontend"
-	"github.com/boreq/hydro/ports/http/hydro"
+	"github.com/boreq/meet/application"
+	"github.com/boreq/meet/ports/http/frontend"
+	"github.com/boreq/meet/ports/http/meet"
 	"github.com/go-chi/chi"
 )
 
@@ -13,7 +13,7 @@ type Handler struct {
 	router *chi.Mux
 }
 
-const hydroPrefix = "/api/hydro"
+const hydroPrefix = "/api/meet"
 
 func NewHandler(app *application.Application) (*Handler, error) {
 	h := &Handler{
@@ -21,7 +21,7 @@ func NewHandler(app *application.Application) (*Handler, error) {
 	}
 
 	// Subrouters
-	h.router.Mount(hydroPrefix, http.StripPrefix(hydroPrefix, hydro.NewHandler(app)))
+	h.router.Mount(hydroPrefix, http.StripPrefix(hydroPrefix, meet.NewHandler(app)))
 
 	// Frontend
 	ffs, err := frontend.NewFrontendFileSystem()

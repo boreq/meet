@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/internal/eventsourcing"
+	"github.com/boreq/meet/internal/eventsourcing"
 )
 
 type BankAccount struct {

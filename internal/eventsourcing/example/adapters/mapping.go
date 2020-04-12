@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/internal/eventsourcing"
-	"github.com/boreq/hydro/internal/eventsourcing/example/domain"
+	"github.com/boreq/meet/internal/eventsourcing"
+	"github.com/boreq/meet/internal/eventsourcing/example/domain"
 )
 
 var mapping = eventsourcing.Mapping{

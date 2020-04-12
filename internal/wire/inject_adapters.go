@@ -1,10 +1,10 @@
 package wire
 
 import (
-	authAdapters "github.com/boreq/hydro/adapters/auth"
-	hydroAdapters "github.com/boreq/hydro/adapters/hydro"
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/application/hydro"
+	authAdapters "github.com/boreq/meet/adapters/auth"
+	meetAdapters "github.com/boreq/meet/adapters/meet"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/application/meet"
 	"github.com/google/wire"
 	bolt "go.etcd.io/bbolt"
 )
@@ -36,40 +36,40 @@ var adapterSet = wire.NewSet(
 	wire.Bind(new(auth.CryptoStringGenerator), new(*authAdapters.CryptoStringGenerator)),
 
 	// hydro
-	hydroAdapters.NewTransactionProvider,
-	wire.Bind(new(hydro.TransactionProvider), new(*hydroAdapters.TransactionProvider)),
+	meetAdapters.NewTransactionProvider,
+	wire.Bind(new(meet.TransactionProvider), new(*meetAdapters.TransactionProvider)),
 
-	wire.Struct(new(hydro.TransactableAdapters), "*"),
+	wire.Struct(new(meet.TransactableAdapters), "*"),
 
-	newHydroAdaptersProvider,
-	wire.Bind(new(hydroAdapters.AdaptersProvider), new(*hydroAdaptersProvider)),
-
-	hydroAdapters.NewControllerRepository,
-	wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepository)),
-
-	hydroAdapters.NewDeviceRepository,
-	wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepository)),
-
-	hydroAdapters.NewUUIDGenerator,
-	wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGenerator)),
+	//newHydroAdaptersProvider,
+	//wire.Bind(new(hydroAdapters.AdaptersProvider), new(*meetAdaptersProvider)),
+	//
+	//hydroAdapters.NewControllerRepository,
+	//wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepository)),
+	//
+	//hydroAdapters.NewDeviceRepository,
+	//wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepository)),
+	//
+	//hydroAdapters.NewUUIDGenerator,
+	//wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGenerator)),
 )
 
 //lint:ignore U1000 because
 var testAdapterSet = wire.NewSet(
 	// hydro
-	hydroAdapters.NewMockTransactionProvider,
-	wire.Bind(new(hydro.TransactionProvider), new(*hydroAdapters.MockTransactionProvider)),
+	meetAdapters.NewMockTransactionProvider,
+	wire.Bind(new(meet.TransactionProvider), new(*meetAdapters.MockTransactionProvider)),
 
-	wire.Struct(new(hydro.TransactableAdapters), "*"),
+	wire.Struct(new(meet.TransactableAdapters), "*"),
 
-	hydroAdapters.NewControllerRepositoryMock,
-	wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepositoryMock)),
-
-	hydroAdapters.NewDeviceRepositoryMock,
-	wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepositoryMock)),
-
-	hydroAdapters.NewUUIDGeneratorMock,
-	wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGeneratorMock)),
+	//hydroAdapters.NewControllerRepositoryMock,
+	//wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepositoryMock)),
+	//
+	//hydroAdapters.NewDeviceRepositoryMock,
+	//wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepositoryMock)),
+	//
+	//hydroAdapters.NewUUIDGeneratorMock,
+	//wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGeneratorMock)),
 )
 
 type authRepositoriesProvider struct {
@@ -83,13 +83,13 @@ func (p *authRepositoriesProvider) Provide(tx *bolt.Tx) (*auth.TransactableRepos
 	return BuildTransactableAuthRepositories(tx)
 }
 
-type hydroAdaptersProvider struct {
+type meetAdaptersProvider struct {
 }
 
-func newHydroAdaptersProvider() *hydroAdaptersProvider {
-	return &hydroAdaptersProvider{}
+func newHydroAdaptersProvider() *meetAdaptersProvider {
+	return &meetAdaptersProvider{}
 }
 
-func (p *hydroAdaptersProvider) Provide(tx *bolt.Tx) (*hydro.TransactableAdapters, error) {
+func (p *meetAdaptersProvider) Provide(tx *bolt.Tx) (*meet.TransactableAdapters, error) {
 	return BuildTransactableHydroAdapters(tx)
 }

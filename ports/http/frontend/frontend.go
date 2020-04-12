@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/boreq/errors"
-	_ "github.com/boreq/hydro/ports/http/frontend/statik"
+	_ "github.com/boreq/meet/ports/http/frontend/statik"
 	"github.com/rakyll/statik/fs"
 )
 

@@ -6,15 +6,13 @@
 package wire
 
 import (
-	auth2 "github.com/boreq/hydro/adapters/auth"
-	hydro2 "github.com/boreq/hydro/adapters/hydro"
-	"github.com/boreq/hydro/adapters/hydro/controller"
-	"github.com/boreq/hydro/application"
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/application/hydro"
-	"github.com/boreq/hydro/internal/config"
-	"github.com/boreq/hydro/internal/service"
-	"github.com/boreq/hydro/ports/http"
+	auth2 "github.com/boreq/meet/adapters/auth"
+	"github.com/boreq/meet/application"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/application/meet"
+	"github.com/boreq/meet/internal/config"
+	"github.com/boreq/meet/internal/service"
+	"github.com/boreq/meet/ports/http"
 	"go.etcd.io/bbolt"
 )
 
@@ -36,19 +34,8 @@ func BuildTransactableAuthRepositories(tx *bbolt.Tx) (*auth.TransactableReposito
 	return transactableRepositories, nil
 }
 
-func BuildTransactableHydroAdapters(tx *bbolt.Tx) (*hydro.TransactableAdapters, error) {
-	controllerRepository, err := hydro2.NewControllerRepository(tx)
-	if err != nil {
-		return nil, err
-	}
-	deviceRepository, err := hydro2.NewDeviceRepository(tx)
-	if err != nil {
-		return nil, err
-	}
-	transactableAdapters := &hydro.TransactableAdapters{
-		Controllers: controllerRepository,
-		Devices:     deviceRepository,
-	}
+func BuildTransactableHydroAdapters(tx *bbolt.Tx) (*meet.TransactableAdapters, error) {
+	transactableAdapters := &meet.TransactableAdapters{}
 	return transactableAdapters, nil
 }
 
@@ -144,22 +131,10 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 		Remove:           removeHandler,
 		SetPassword:      setPasswordHandler,
 	}
-	wireHydroAdaptersProvider := newHydroAdaptersProvider()
-	transactionProvider := hydro2.NewTransactionProvider(db, wireHydroAdaptersProvider)
-	uuidGenerator := hydro2.NewUUIDGenerator()
-	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
-	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
-	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
-	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(transactionProvider)
-	hydroHydro := hydro.Hydro{
-		AddControllerHandler:         addControllerHandler,
-		SetControllerDevicesHandler:  setControllerDevicesHandler,
-		ListControllersHandler:       listControllersHandler,
-		ListControllerDevicesHandler: listControllerDevicesHandler,
-	}
+	meetMeet := meet.Meet{}
 	applicationApplication := &application.Application{
-		Auth:  authAuth,
-		Hydro: hydroHydro,
+		Auth: authAuth,
+		Meet: meetMeet,
 	}
 	handler, err := http.NewHandler(applicationApplication)
 	if err != nil {
@@ -169,9 +144,7 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	clientMock := controller.NewClientMock()
-	scanner := newScanner(clientMock, applicationApplication)
-	serviceService := service.NewService(server, scanner)
+	serviceService := service.NewService(server)
 	return serviceService, nil
 }
 
@@ -201,22 +174,10 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 		Remove:           removeHandler,
 		SetPassword:      setPasswordHandler,
 	}
-	wireHydroAdaptersProvider := newHydroAdaptersProvider()
-	transactionProvider := hydro2.NewTransactionProvider(db, wireHydroAdaptersProvider)
-	uuidGenerator := hydro2.NewUUIDGenerator()
-	addControllerHandler := hydro.NewAddControllerHandler(transactionProvider, uuidGenerator)
-	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(transactionProvider, uuidGenerator)
-	listControllersHandler := hydro.NewListControllersHandler(transactionProvider)
-	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(transactionProvider)
-	hydroHydro := hydro.Hydro{
-		AddControllerHandler:         addControllerHandler,
-		SetControllerDevicesHandler:  setControllerDevicesHandler,
-		ListControllersHandler:       listControllersHandler,
-		ListControllerDevicesHandler: listControllerDevicesHandler,
-	}
+	meetMeet := meet.Meet{}
 	applicationApplication := &application.Application{
-		Auth:  authAuth,
-		Hydro: hydroHydro,
+		Auth: authAuth,
+		Meet: meetMeet,
 	}
 	handler, err := http.NewHandler(applicationApplication)
 	if err != nil {
@@ -226,9 +187,7 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	if err != nil {
 		return ComponentTestService{}, err
 	}
-	clientMock := controller.NewClientMock()
-	scanner := newTestScanner(clientMock, applicationApplication)
-	serviceService := service.NewService(server, scanner)
+	serviceService := service.NewService(server)
 	componentTestService := ComponentTestService{
 		Service: serviceService,
 		Config:  conf,
@@ -236,34 +195,14 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 	return componentTestService, nil
 }
 
-func BuildUnitTestHydroApplication() (UnitTestHydroApplication, error) {
-	controllerRepositoryMock := hydro2.NewControllerRepositoryMock()
-	deviceRepositoryMock := hydro2.NewDeviceRepositoryMock()
-	transactableAdapters := &hydro.TransactableAdapters{
-		Controllers: controllerRepositoryMock,
-		Devices:     deviceRepositoryMock,
+func BuildUnitTestHydroApplication() (UnitTestMeetApplication, error) {
+	meetMeet := meet.Meet{}
+	unitTestMeetRepositories := UnitTestMeetRepositories{}
+	unitTestMeetApplication := UnitTestMeetApplication{
+		Meet:         meetMeet,
+		Repositories: unitTestMeetRepositories,
 	}
-	mockTransactionProvider := hydro2.NewMockTransactionProvider(transactableAdapters)
-	uuidGeneratorMock := hydro2.NewUUIDGeneratorMock()
-	addControllerHandler := hydro.NewAddControllerHandler(mockTransactionProvider, uuidGeneratorMock)
-	setControllerDevicesHandler := hydro.NewSetControllerDevicesHandler(mockTransactionProvider, uuidGeneratorMock)
-	listControllersHandler := hydro.NewListControllersHandler(mockTransactionProvider)
-	listControllerDevicesHandler := hydro.NewListControllerDevicesHandler(mockTransactionProvider)
-	hydroHydro := hydro.Hydro{
-		AddControllerHandler:         addControllerHandler,
-		SetControllerDevicesHandler:  setControllerDevicesHandler,
-		ListControllersHandler:       listControllersHandler,
-		ListControllerDevicesHandler: listControllerDevicesHandler,
-	}
-	unitTestHydroRepositories := UnitTestHydroRepositories{
-		Controller: controllerRepositoryMock,
-		Device:     deviceRepositoryMock,
-	}
-	unitTestHydroApplication := UnitTestHydroApplication{
-		Hydro:        hydroHydro,
-		Repositories: unitTestHydroRepositories,
-	}
-	return unitTestHydroApplication, nil
+	return unitTestMeetApplication, nil
 }
 
 // wire.go:
@@ -273,12 +212,10 @@ type ComponentTestService struct {
 	Config  *config.Config
 }
 
-type UnitTestHydroApplication struct {
-	Hydro        hydro.Hydro
-	Repositories UnitTestHydroRepositories
+type UnitTestMeetApplication struct {
+	Meet         meet.Meet
+	Repositories UnitTestMeetRepositories
 }
 
-type UnitTestHydroRepositories struct {
-	Controller *hydro2.ControllerRepositoryMock
-	Device     *hydro2.DeviceRepositoryMock
+type UnitTestMeetRepositories struct {
 }

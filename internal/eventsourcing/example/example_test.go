@@ -3,8 +3,8 @@ package example
 import (
 	"testing"
 
-	"github.com/boreq/hydro/internal/eventsourcing/example/adapters"
-	"github.com/boreq/hydro/internal/eventsourcing/example/domain"
+	"github.com/boreq/meet/internal/eventsourcing/example/adapters"
+	"github.com/boreq/meet/internal/eventsourcing/example/domain"
 	"github.com/stretchr/testify/require"
 )
 

@@ -4,15 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/boreq/hydro/ports/scanner"
-
 	"github.com/boreq/errors"
-	httpPort "github.com/boreq/hydro/ports/http"
+	httpPort "github.com/boreq/meet/ports/http"
 )
 
 type Service struct {
 	httpServer *httpPort.Server
-	scanner    *scanner.Scanner
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -21,14 +18,13 @@ type Service struct {
 	startedCounter int
 }
 
-func NewService(httpServer *httpPort.Server, scanner *scanner.Scanner) *Service {
+func NewService(httpServer *httpPort.Server) *Service {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Service{
 		httpServer: httpServer,
 		ctx:        ctx,
 		cancel:     cancel,
-		scanner:    scanner,
 	}
 }
 
@@ -48,14 +44,14 @@ func (s *Service) Start() error {
 		}
 	}()
 
-	s.startedCounter++
-	go func() {
-		if err := s.scanner.Run(s.ctx); err != nil {
-			s.errC <- errors.Wrap(err, "scanner error")
-		} else {
-			s.errC <- nil
-		}
-	}()
+	//s.startedCounter++
+	//go func() {
+	//	if err := s.scanner.Run(s.ctx); err != nil {
+	//		s.errC <- errors.Wrap(err, "scanner error")
+	//	} else {
+	//		s.errC <- nil
+	//	}
+	//}()
 
 	return nil
 }

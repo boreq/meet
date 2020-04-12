@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/boreq/hydro/internal/config"
-	"github.com/boreq/hydro/internal/wire"
+	"github.com/boreq/meet/internal/config"
+	"github.com/boreq/meet/internal/wire"
 	bolt "go.etcd.io/bbolt"
 )
 

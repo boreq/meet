@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/boreq/hydro/domain"
+	"github.com/boreq/meet/domain"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,15 +13,9 @@ func TestUUID(t *testing.T) {
 		Constructor uuidConstructor
 	}{
 		{
-			Name: "controller_uuid",
+			Name: "participant_uuid",
 			Constructor: func(s string) (uuid, error) {
-				return domain.NewControllerUUID(s)
-			},
-		},
-		{
-			Name: "device_uuid",
-			Constructor: func(s string) (uuid, error) {
-				return domain.NewDeviceUUID(s)
+				return domain.NewParticipantUUID(s)
 			},
 		},
 	}

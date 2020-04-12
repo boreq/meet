@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/boreq/hydro/internal/eventsourcing"
+	"github.com/boreq/meet/internal/eventsourcing"
 	"github.com/oklog/ulid"
 	"github.com/stretchr/testify/require"
 )

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/boreq/hydro/internal/eventsourcing"
-	"github.com/boreq/hydro/internal/eventsourcing/adapters"
+	"github.com/boreq/meet/internal/eventsourcing"
+	"github.com/boreq/meet/internal/eventsourcing/adapters"
 	"github.com/stretchr/testify/require"
 	bolt "go.etcd.io/bbolt"
 )

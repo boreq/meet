@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/application/auth"
+	"github.com/boreq/meet/application/auth"
 )
 
 const tokenLengthBytes = 256 / 8

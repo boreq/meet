@@ -3,11 +3,11 @@ set -e
 
 # Build frontend
 echo "Running yarn build"
-cd ../hydro-frontend
+cd ../meet-frontend
 rm -rf dist
 yarn build
 
 # Build backend
-cd ../hydro/ports/http/frontend
+cd ../meet/ports/http/frontend
 echo "Running https://github.com/rakyll/statik"
-statik -f -src=../../../../hydro-frontend/dist
+statik -f -src=../../../../meet-frontend/dist

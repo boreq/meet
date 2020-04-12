@@ -1,6 +1,6 @@
 package adapters
 
-import "github.com/boreq/hydro/internal/eventsourcing"
+import "github.com/boreq/meet/internal/eventsourcing"
 
 type MemoryPersistenceAdapter struct {
 	events map[eventsourcing.AggregateUUID][]eventsourcing.PersistedEvent

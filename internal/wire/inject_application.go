@@ -1,9 +1,9 @@
 package wire
 
 import (
-	"github.com/boreq/hydro/application"
-	"github.com/boreq/hydro/application/auth"
-	"github.com/boreq/hydro/application/hydro"
+	"github.com/boreq/meet/application"
+	"github.com/boreq/meet/application/auth"
+	"github.com/boreq/meet/application/meet"
 	"github.com/google/wire"
 )
 
@@ -11,7 +11,7 @@ import (
 var appSet = wire.NewSet(
 	wire.Struct(new(application.Application), "*"),
 	authAppSet,
-	hydroAppSet,
+	meetAppSet,
 )
 
 var authAppSet = wire.NewSet(
@@ -27,10 +27,6 @@ var authAppSet = wire.NewSet(
 	auth.NewSetPasswordHandler,
 )
 
-var hydroAppSet = wire.NewSet(
-	wire.Struct(new(hydro.Hydro), "*"),
-	hydro.NewAddControllerHandler,
-	hydro.NewListControllersHandler,
-	hydro.NewSetControllerDevicesHandler,
-	hydro.NewListControllerDevicesHandler,
+var meetAppSet = wire.NewSet(
+	wire.Struct(new(meet.Meet), "*"),
 )

@@ -2,9 +2,9 @@ package adapters
 
 import (
 	"github.com/boreq/errors"
-	"github.com/boreq/hydro/internal/eventsourcing"
-	"github.com/boreq/hydro/internal/eventsourcing/adapters"
-	"github.com/boreq/hydro/internal/eventsourcing/example/domain"
+	"github.com/boreq/meet/internal/eventsourcing"
+	"github.com/boreq/meet/internal/eventsourcing/adapters"
+	"github.com/boreq/meet/internal/eventsourcing/example/domain"
 )
 
 type BankAccountRepository struct {
