@@ -42,3 +42,7 @@ func MustNewMeetingName(name string) MeetingName {
 func (n MeetingName) IsZero() bool {
 	return n == MeetingName{}
 }
+
+func (n MeetingName) String() string {
+	return n.name
+}

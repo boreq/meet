@@ -76,9 +76,9 @@ func (h *Handler) sdp(r *http.Request) rest.RestResponse {
 		return rest.ErrBadRequest
 	}
 
-	h.log.Debug("sdp received", "sdp", request.Sdp, "meetingName", meetingName)
+	h.log.Debug("sdp received", "meetingName", meetingName)
 
-	member, err := meeting.ReceivedSessionDescriptionProtocol(request.Sdp)
+	member, err := meeting.Join(request.Sdp)
 	if err != nil {
 		h.log.Debug("sdp failure", "err", err)
 		return rest.ErrInternalServerError
