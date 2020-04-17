@@ -81,7 +81,7 @@ type ComponentTestService struct {
 func BuildUnitTestHydroApplication() (UnitTestMeetApplication, error) {
 	wire.Build(
 		meetAppSet,
-		//testAdapterSet,
+		testAdapterSet,
 		wire.Struct(new(UnitTestMeetApplication), "*"),
 		wire.Struct(new(UnitTestMeetRepositories), "*"),
 	)

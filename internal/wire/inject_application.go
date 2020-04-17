@@ -29,4 +29,5 @@ var authAppSet = wire.NewSet(
 
 var meetAppSet = wire.NewSet(
 	wire.Struct(new(meet.Meet), "*"),
+	meet.NewJoinMeetingHandler,
 )

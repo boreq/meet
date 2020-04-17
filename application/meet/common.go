@@ -36,5 +36,5 @@ type TransactionProvider interface {
 }
 
 type Meet struct {
-	JoinMeeting JoinMeetingHandler
+	JoinMeeting *JoinMeetingHandler
 }

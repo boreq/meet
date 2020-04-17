@@ -41,6 +41,9 @@ var adapterSet = wire.NewSet(
 
 	wire.Struct(new(meet.TransactableAdapters), "*"),
 
+	meetAdapters.NewUUIDGenerator,
+	wire.Bind(new(meet.UUIDGenerator), new(*meetAdapters.UUIDGenerator)),
+
 	//newMeetAdaptersProvider,
 	//wire.Bind(new(hydroAdapters.AdaptersProvider), new(*meetAdaptersProvider)),
 	//
@@ -50,8 +53,6 @@ var adapterSet = wire.NewSet(
 	//hydroAdapters.NewDeviceRepository,
 	//wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepository)),
 	//
-	//hydroAdapters.NewUUIDGenerator,
-	//wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGenerator)),
 )
 
 //lint:ignore U1000 because
@@ -62,14 +63,15 @@ var testAdapterSet = wire.NewSet(
 
 	wire.Struct(new(meet.TransactableAdapters), "*"),
 
+	meetAdapters.NewUUIDGeneratorMock,
+	wire.Bind(new(meet.UUIDGenerator), new(*meetAdapters.UUIDGeneratorMock)),
+
 	//hydroAdapters.NewControllerRepositoryMock,
 	//wire.Bind(new(hydro.ControllerRepository), new(*hydroAdapters.ControllerRepositoryMock)),
 	//
 	//hydroAdapters.NewDeviceRepositoryMock,
 	//wire.Bind(new(hydro.DeviceRepository), new(*hydroAdapters.DeviceRepositoryMock)),
 	//
-	//hydroAdapters.NewUUIDGeneratorMock,
-	//wire.Bind(new(hydro.UUIDGenerator), new(*hydroAdapters.UUIDGeneratorMock)),
 )
 
 type authRepositoriesProvider struct {

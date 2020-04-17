@@ -67,4 +67,3 @@ func (p *Participant) broadcast(msg OutgoingMessage) {
 func (p *Participant) nameChangedMessage() NameChangedMessage {
 	return NameChangedMessage{p.uuid, p.name}
 }
-

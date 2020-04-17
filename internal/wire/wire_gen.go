@@ -7,6 +7,7 @@ package wire
 
 import (
 	auth2 "github.com/boreq/meet/adapters/auth"
+	meet2 "github.com/boreq/meet/adapters/meet"
 	"github.com/boreq/meet/application"
 	"github.com/boreq/meet/application/auth"
 	"github.com/boreq/meet/application/meet"
@@ -131,7 +132,11 @@ func BuildService(conf *config.Config) (*service.Service, error) {
 		Remove:           removeHandler,
 		SetPassword:      setPasswordHandler,
 	}
-	meetMeet := meet.Meet{}
+	uuidGenerator := meet2.NewUUIDGenerator()
+	joinMeetingHandler := meet.NewJoinMeetingHandler(uuidGenerator)
+	meetMeet := meet.Meet{
+		JoinMeeting: joinMeetingHandler,
+	}
 	applicationApplication := &application.Application{
 		Auth: authAuth,
 		Meet: meetMeet,
@@ -174,7 +179,11 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 		Remove:           removeHandler,
 		SetPassword:      setPasswordHandler,
 	}
-	meetMeet := meet.Meet{}
+	uuidGenerator := meet2.NewUUIDGenerator()
+	joinMeetingHandler := meet.NewJoinMeetingHandler(uuidGenerator)
+	meetMeet := meet.Meet{
+		JoinMeeting: joinMeetingHandler,
+	}
 	applicationApplication := &application.Application{
 		Auth: authAuth,
 		Meet: meetMeet,
@@ -196,7 +205,11 @@ func BuildComponentTestService(db *bbolt.DB, conf *config.Config) (ComponentTest
 }
 
 func BuildUnitTestHydroApplication() (UnitTestMeetApplication, error) {
-	meetMeet := meet.Meet{}
+	uuidGeneratorMock := meet2.NewUUIDGeneratorMock()
+	joinMeetingHandler := meet.NewJoinMeetingHandler(uuidGeneratorMock)
+	meetMeet := meet.Meet{
+		JoinMeeting: joinMeetingHandler,
+	}
 	unitTestMeetRepositories := UnitTestMeetRepositories{}
 	unitTestMeetApplication := UnitTestMeetApplication{
 		Meet:         meetMeet,
