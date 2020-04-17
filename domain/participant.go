@@ -6,12 +6,12 @@ type Participant struct {
 	uuid ParticipantUUID
 	name Name
 
-	sendC      chan<- Message
-	broadcastC chan<- Message
+	sendC      chan<- OutgoingMessage
+	broadcastC chan<- OutgoingMessage
 	closeC     chan struct{}
 }
 
-func NewParticipant(uuid ParticipantUUID, sendC chan<- Message, broadcastC chan<- Message) (*Participant, error) {
+func NewParticipant(uuid ParticipantUUID, sendC chan<- OutgoingMessage, broadcastC chan<- OutgoingMessage) (*Participant, error) {
 	if uuid.IsZero() {
 		return nil, errors.New("zero value of uuid")
 	}
@@ -46,7 +46,7 @@ func (p *Participant) sync(o *Participant) {
 	o.send(p.nameChangedMessage())
 }
 
-func (p *Participant) send(msg Message) {
+func (p *Participant) send(msg OutgoingMessage) {
 	select {
 	case p.sendC <- msg:
 		return
@@ -55,7 +55,7 @@ func (p *Participant) send(msg Message) {
 	}
 }
 
-func (p *Participant) broadcast(msg Message) {
+func (p *Participant) broadcast(msg OutgoingMessage) {
 	select {
 	case p.broadcastC <- msg:
 		return
@@ -68,17 +68,3 @@ func (p *Participant) nameChangedMessage() NameChangedMessage {
 	return NameChangedMessage{p.uuid, p.name}
 }
 
-type Message interface {
-	// Critical returns true if this message can't be dropped in case of
-	// connection problems.
-	Critical() bool // todo
-}
-
-type NameChangedMessage struct {
-	ParticipantUUID ParticipantUUID
-	Name            Name
-}
-
-func (n NameChangedMessage) Critical() bool {
-	return true
-}

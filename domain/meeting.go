@@ -10,21 +10,21 @@ type Meeting struct {
 	participants []*Participant
 	mutex        sync.RWMutex
 
-	broadcastC chan Message
+	broadcastC chan OutgoingMessage
 	closeC     chan struct{}
 }
 
-func NewMeeting() (*Meeting, error) {
+func NewMeeting() *Meeting {
 	m := &Meeting{
-		broadcastC: make(chan Message),
+		broadcastC: make(chan OutgoingMessage),
 	}
 
 	go m.run()
 
-	return m, nil
+	return m
 }
 
-func (m *Meeting) Join(uuid ParticipantUUID, send chan<- Message) (*Participant, error) {
+func (m *Meeting) Join(uuid ParticipantUUID, send chan<- OutgoingMessage) (*Participant, error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
@@ -63,7 +63,7 @@ func (m *Meeting) run() {
 	}
 }
 
-func (m *Meeting) broadcast(msg Message) {
+func (m *Meeting) broadcast(msg OutgoingMessage) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 

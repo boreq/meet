@@ -36,5 +36,5 @@ type TransactionProvider interface {
 }
 
 type Meet struct {
-	//AddControllerHandler *AddControllerHandler
+	JoinMeeting JoinMeetingHandler
 }
