@@ -34,11 +34,13 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) registerHandlers() {
-	h.router.Post("/meetings/{meetingName}/websocket", h.meetingWebsocket)
+	h.router.Get("/meetings/{meetingName}/websocket", h.meetingWebsocket)
 }
 
 func (h *Handler) meetingWebsocket(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	h.log.Debug("connecting to the meeting websocket")
 
 	meetingName, err := domain.NewMeetingName(chi.URLParam(r, "meetingName"))
 	if err != nil {
@@ -50,6 +52,11 @@ func (h *Handler) meetingWebsocket(w http.ResponseWriter, r *http.Request) {
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+	}
+
+	// todo why is this needed on localhost?
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)

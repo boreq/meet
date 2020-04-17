@@ -23,3 +23,7 @@ func MustNewName(name string) Name {
 	}
 	return v
 }
+
+func (n Name) String() string {
+	return n.name
+}

@@ -46,7 +46,7 @@ func (c *Client) runReceive() {
 			return
 		}
 
-		if websocketMessageType != websocket.BinaryMessage {
+		if websocketMessageType != websocket.TextMessage {
 			c.log.Warn("invalid received message type", "websocketMessageType", websocketMessageType)
 			return
 		}
@@ -80,7 +80,7 @@ func (c *Client) runSend() {
 			return
 		}
 
-		if err := c.conn.WriteMessage(websocket.BinaryMessage, b); err != nil {
+		if err := c.conn.WriteMessage(websocket.TextMessage, b); err != nil {
 			c.log.Warn("could not write a message", "err", err)
 			return
 		}
@@ -89,7 +89,7 @@ func (c *Client) runSend() {
 }
 
 func (c *Client) unmarshalMessage(reader io.Reader) (meet.IncomingMessage, error) {
-	var message Message
+	var message IncomingMessage
 	if err := json.NewDecoder(reader).Decode(&message); err != nil {
 		return nil, errors.Wrap(err, "could not decode the incoming message")
 	}
@@ -97,17 +97,12 @@ func (c *Client) unmarshalMessage(reader io.Reader) (meet.IncomingMessage, error
 	return c.unmarshalIncomingMessage(message)
 }
 
-func (c *Client) unmarshalIncomingMessage(message Message) (meet.IncomingMessage, error) {
-	switch message.MessageType {
-	case SetNameMessage:
-		var msg meet.SetNameMessage
-		if err := json.Unmarshal(message.Payload, &msg); err != nil {
-			return nil, errors.Wrap(err, "could not unmarshal set name message")
-		}
-		return msg, nil
-	default:
+func (c *Client) unmarshalIncomingMessage(message IncomingMessage) (meet.IncomingMessage, error) {
+	mapping, ok := incomingMapping[message.MessageType]
+	if !ok {
 		return nil, fmt.Errorf("unsupported message type '%+v'", message.MessageType)
 	}
+	return mapping([]byte(message.Payload))
 }
 
 func (c *Client) marshalMessage(msg domain.OutgoingMessage) ([]byte, error) {
@@ -116,43 +111,61 @@ func (c *Client) marshalMessage(msg domain.OutgoingMessage) ([]byte, error) {
 		return nil, errors.Wrap(err, "could not marshal outgoing message")
 	}
 
-	return json.Marshal(message)
+	b, err := json.Marshal(message)
+	if err != nil {
+		return nil, errors.Wrap(err, "json marshal failed")
+	}
+
+	return b, nil
 }
 
-func (c *Client) marshalOutgoingMessage(msg domain.OutgoingMessage) (Message, error) {
-	b, err := json.Marshal(msg)
+func (c *Client) marshalOutgoingMessage(msg domain.OutgoingMessage) (OutgoingMessage, error) {
+	message, messageType, err := c.toTransportMessage(msg)
 	if err != nil {
-		return Message{}, errors.Wrap(err, "could not marshal the message")
+		return OutgoingMessage{}, errors.Wrap(err, "could not get a message type")
 	}
 
-	messageType, err := c.getMessageType(msg)
+	b, err := json.Marshal(message)
 	if err != nil {
-		return Message{}, errors.Wrap(err, "could not get a message type")
+		return OutgoingMessage{}, errors.Wrap(err, "could not marshal the message")
 	}
 
-	return Message{
+	return OutgoingMessage{
 		MessageType: messageType,
-		Payload:     b,
+		Payload:     string(b),
 	}, nil
 }
 
-func (c *Client) getMessageType(msg domain.OutgoingMessage) (MessageType, error) {
-	switch msg.(type) {
+func (c *Client) toTransportMessage(message domain.OutgoingMessage) (interface{}, OutgoingMessageType, error) {
+	switch msg := message.(type) {
 	case domain.NameChangedMessage:
-		return NameChangedMessage, nil
+		return NameChangedMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+			Name:            msg.Name.String(),
+		}, NameChangedMessage, nil
 	default:
-		return "", fmt.Errorf("unsupported message: '%T'", msg)
+		return nil, "", fmt.Errorf("unsupported message: '%T'", msg)
 	}
 }
 
-type Message struct {
-	MessageType MessageType `json:"messageType"`
-	Payload     []byte      `json:"payload"`
+type IncomingMessage struct {
+	MessageType IncomingMessageType `json:"messageType"`
+	Payload     string              `json:"payload"`
 }
 
-type MessageType string
+type IncomingMessageType string
 
 const (
-	SetNameMessage     MessageType = "set_name"
-	NameChangedMessage MessageType = "name_changed"
+	SetNameMessage IncomingMessageType = "setName"
+)
+
+type OutgoingMessage struct {
+	MessageType OutgoingMessageType `json:"messageType"`
+	Payload     string              `json:"payload"`
+}
+
+type OutgoingMessageType string
+
+const (
+	NameChangedMessage OutgoingMessageType = "nameChanged"
 )
