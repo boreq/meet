@@ -15,7 +15,7 @@ var incomingMapping = map[IncomingMessageType]func(payload []byte) (meet.Incomin
 			return nil, errors.Wrap(err, "json unmarshal failed")
 		}
 
-		name, err := domain.NewName(transport.Name)
+		name, err := domain.NewParticipantName(transport.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not create a name")
 		}

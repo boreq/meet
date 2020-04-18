@@ -1,4 +1,4 @@
-package webrtc
+package domain
 
 import "github.com/boreq/errors"
 

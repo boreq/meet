@@ -4,5 +4,5 @@ type OutgoingMessage interface{}
 
 type NameChangedMessage struct {
 	ParticipantUUID ParticipantUUID
-	Name            Name
+	Name            ParticipantName
 }

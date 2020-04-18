@@ -37,7 +37,7 @@ func TestName(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			_, err := NewName(testCase.Value)
+			_, err := NewParticipantName(testCase.Value)
 			if testCase.ErrorExpected {
 				require.Error(t, err)
 			} else {

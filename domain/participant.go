@@ -4,7 +4,7 @@ import "github.com/boreq/errors"
 
 type Participant struct {
 	uuid ParticipantUUID
-	name Name
+	name ParticipantName
 
 	sendC      chan<- OutgoingMessage
 	broadcastC chan<- OutgoingMessage
@@ -24,7 +24,7 @@ func NewParticipant(uuid ParticipantUUID, sendC chan<- OutgoingMessage, broadcas
 	}, nil
 }
 
-func (p *Participant) SetName(name Name) {
+func (p *Participant) SetName(name ParticipantName) {
 	p.name = name
 	p.broadcast(p.nameChangedMessage())
 }
