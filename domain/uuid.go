@@ -6,20 +6,20 @@ type uuid struct {
 	u string
 }
 
-func (u uuid) IsZero() bool {
-	return u.u == ""
-}
-
-func (u uuid) String() string {
-	return u.u
-}
-
 func newUUID(u string) (uuid, error) {
 	if u == "" {
 		return uuid{}, errors.New("uuid can not be empty")
 	}
 
 	return uuid{u: u}, nil
+}
+
+func (u uuid) IsZero() bool {
+	return u.u == ""
+}
+
+func (u uuid) String() string {
+	return u.u
 }
 
 type ParticipantUUID struct {

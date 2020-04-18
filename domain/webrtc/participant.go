@@ -1,34 +1,44 @@
-package meet
+package webrtc
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
 
-	"github.com/boreq/meet/internal/logging"
-
 	"github.com/boreq/errors"
 	"github.com/boreq/meet/domain"
+	"github.com/boreq/meet/internal/logging"
 	"github.com/pion/rtcp"
 	"github.com/pion/webrtc/v2"
 )
 
-type Member struct {
-	uuid           domain.ParticipantUUID
-	answer         webrtc.SessionDescription
+type WebRTCParticipant struct {
+	participant    *domain.Participant
 	trackChan      chan *webrtc.Track
 	peerConnection *webrtc.PeerConnection
 	log            logging.Logger
 }
 
-func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDescription) (*Member, error) {
-	trackChan := make(chan *webrtc.Track)
-	log := logging.New("member " + uuid.String())
+func NewWebRTCParticipant(participant *domain.Participant) (*WebRTCParticipant, error) {
+	return &WebRTCParticipant{
+		participant: participant,
+		trackChan:   make(chan *webrtc.Track),
+		log:         logging.New(fmt.Sprintf("WebRTC member %s", participant.UUID())),
+	}, nil
+}
+
+func (p *WebRTCParticipant) Connect(remoteDescription RemoteDescription) error {
+	sessionDescription, err := decodeSdp(remoteDescription.String())
+	if err != nil {
+		return errors.Wrap(err, "failed to decode sdp description")
+	}
 
 	// Since we are answering use PayloadTypes declared by offerer
 	mediaEngine := webrtc.MediaEngine{}
 	if err := mediaEngine.PopulateFromSDP(sessionDescription); err != nil {
-		return nil, errors.Wrap(err, "failed to populate media engine")
+		return errors.Wrap(err, "failed to populate media engine")
 	}
 
 	// Create the API object with the MediaEngine
@@ -45,22 +55,23 @@ func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDes
 	// Create a new RTCPeerConnection
 	peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create a peer connection")
+		return errors.Wrap(err, "could not create a peer connection")
 	}
 
 	// Allow us to receive 1 video track
 	if _, err = peerConnection.AddTransceiverFromKind(webrtc.RTPCodecTypeVideo); err != nil {
-		return nil, errors.Wrap(err, "could not add a transceiver")
+		return errors.Wrap(err, "could not add a transceiver")
 	}
 
 	// Set a handler for when a new remote track starts, this just distributes all our packets
 	// to connected peers
 	peerConnection.OnTrack(func(remoteTrack *webrtc.Track, receiver *webrtc.RTPReceiver) {
-		log.Debug("received a track", "id", remoteTrack.ID(), "label", remoteTrack.Label())
+		p.log.Debug("received a track", "id", remoteTrack.ID(), "label", remoteTrack.Label())
 
 		// Send a PLI on an interval so that the publisher is pushing a keyframe every rtcpPLIInterval
 		// This can be less wasteful by processing incoming RTCP events, then we would emit a NACK/PLI when a viewer requests it
 		go func() {
+			// todo terminate this somehow
 			ticker := time.NewTicker(rtcpPLIInterval)
 			for range ticker.C {
 				if rtcpSendErr := peerConnection.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{MediaSSRC: remoteTrack.SSRC()}}); rtcpSendErr != nil {
@@ -74,7 +85,8 @@ func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDes
 		if err != nil {
 			panic(err)
 		}
-		trackChan <- localTrack
+
+		p.trackChan <- localTrack
 
 		rtpBuf := make([]byte, 1400)
 		for {
@@ -83,7 +95,7 @@ func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDes
 				panic(err)
 			}
 
-			log.Debug("read from remote track", "i", i)
+			p.log.Debug("read from remote track", "i", i)
 
 			// ErrClosedPipe means we don't have any subscribers, this is ok if no peers have connected yet
 			if _, err = localTrack.Write(rtpBuf[:i]); err != nil && err != io.ErrClosedPipe {
@@ -95,11 +107,19 @@ func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDes
 	// Set the remote SessionDescription
 	err = peerConnection.SetRemoteDescription(sessionDescription)
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "could not set the remote description")
 	}
 
 	peerConnection.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
-		fmt.Println("state changed", state)
+		p.log.Debug("connection state change", "state", state)
+	})
+
+	peerConnection.OnICECandidate(func(candidate *webrtc.ICECandidate) {
+		p.log.Debug("ice candidate received", "candidate", candidate)
+	})
+
+	peerConnection.OnSignalingStateChange(func(state webrtc.SignalingState) {
+		p.log.Debug("signaling state changed", "state", state)
 	})
 
 	// Create answer
@@ -114,16 +134,9 @@ func NewMember(uuid domain.ParticipantUUID, sessionDescription webrtc.SessionDes
 		panic(err)
 	}
 
-	return &Member{
-		uuid:           uuid,
-		log:            log,
-		peerConnection: peerConnection,
-		answer:         answer,
-		trackChan:      trackChan,
-	}, nil
 }
 
-func (m *Member) AddTrack(track *webrtc.Track) error {
+func (m *WebRTCParticipant) AddTrack(track *webrtc.Track) error {
 	m.log.Debug("adding a track", "id", track.ID(), "label", track.Label())
 
 	_, err := m.peerConnection.AddTrack(track)
@@ -134,18 +147,45 @@ func (m *Member) AddTrack(track *webrtc.Track) error {
 	return nil
 }
 
-func (m *Member) UUID() domain.ParticipantUUID {
+func (m *WebRTCParticipant) UUID() domain.ParticipantUUID {
 	return m.uuid
 }
 
-func (m *Member) String() string {
+func (m *WebRTCParticipant) String() string {
 	return fmt.Sprintf("member (%s)", m.uuid)
 }
 
-func (m *Member) Tracks() <-chan *webrtc.Track {
+func (m *WebRTCParticipant) Tracks() <-chan *webrtc.Track {
 	return m.trackChan
 }
 
-func (m *Member) Answer() (string, error) {
+func (m *WebRTCParticipant) Answer() (string, error) {
 	return encodeSdp(m.answer)
+}
+
+func (m *WebRTCParticipant) OnRemoteDescription(sessionDescription RemoteDescription) {
+}
+
+func encodeSdp(obj webrtc.SessionDescription) (string, error) {
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return "", errors.Wrap(err, "json marshal failed")
+	}
+
+	return base64.StdEncoding.EncodeToString(b), nil
+}
+
+func decodeSdp(sdp string) (webrtc.SessionDescription, error) {
+	var offer webrtc.SessionDescription
+
+	b, err := base64.StdEncoding.DecodeString(sdp)
+	if err != nil {
+		return offer, errors.Wrap(err, "base64 decoding failed")
+	}
+
+	if err = json.Unmarshal(b, &offer); err != nil {
+		return offer, errors.Wrap(err, "json unmarshal failed")
+	}
+
+	return offer, nil
 }
