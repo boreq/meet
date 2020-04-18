@@ -2,7 +2,6 @@ package meet
 
 import (
 	"context"
-	"github.com/boreq/meet/domain/webrtc"
 
 	"github.com/boreq/errors"
 	"github.com/boreq/meet/domain"
@@ -10,7 +9,6 @@ import (
 )
 
 var meeting = domain.NewMeeting()
-var webRTCMeeting = webrtc.NewWebRTCMeting()
 
 type Client struct {
 	Receive <-chan IncomingMessage
@@ -46,30 +44,25 @@ func (h *JoinMeetingHandler) Execute(ctx context.Context, cmd JoinMeeting) error
 		}
 	}()
 
-	webrtcParticipant, err := webRTCMeeting.Join(participant)
-	if err != nil {
-		return errors.Wrap(err, "could not join the WebRTC meeting")
-	}
-
 	for {
 		select {
 		case msg, ok := <-cmd.Client.Receive:
 			if !ok {
 				return nil
 			}
-			h.dispatchMessage(participant, webrtcParticipant, msg)
+			h.dispatchMessage(participant, msg)
 		case <-ctx.Done():
 			return nil
 		}
 	}
 }
 
-func (h *JoinMeetingHandler) dispatchMessage(participant *domain.Participant, webrtcParticipant *webrtc.WebRTCParticipant, msg IncomingMessage) {
+func (h *JoinMeetingHandler) dispatchMessage(participant *domain.Participant, msg IncomingMessage) {
 	switch m := msg.(type) {
 	case SetNameMessage:
 		participant.SetName(m.Name)
-	case BrowserSessionDescription:
-		webrtcParticipant.OnRemoteDescription(m.SessionDescription)
+	case PassLocalSessionDescription:
+		println(m.SessionDescription.String())
 	default:
 		h.log.Warn("unknown message received", "msg", msg)
 	}
@@ -88,4 +81,3 @@ func (h *JoinMeetingHandler) joinMeeting(cmd JoinMeeting) (*domain.Participant, 
 
 	return meeting.Join(participantUUID, cmd.Client.Send)
 }
-

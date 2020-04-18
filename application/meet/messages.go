@@ -10,6 +10,7 @@ type SetNameMessage struct {
 	Name domain.ParticipantName
 }
 
-type BrowserSessionDescription struct {
-	SessionDescription domain.RemoteDescription
+type PassLocalSessionDescription struct {
+	TargetParticipant  domain.ParticipantUUID
+	SessionDescription domain.SessionDescription
 }

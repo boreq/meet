@@ -6,17 +6,22 @@ import (
 	"github.com/boreq/errors"
 )
 
+type BroadcastMessage struct {
+	Sender  ParticipantUUID
+	Message OutgoingMessage
+}
+
 type Meeting struct {
 	participants []*Participant
 	mutex        sync.RWMutex
 
-	broadcastC chan OutgoingMessage
+	broadcastC chan BroadcastMessage
 	closeC     chan struct{}
 }
 
 func NewMeeting() *Meeting {
 	m := &Meeting{
-		broadcastC: make(chan OutgoingMessage),
+		broadcastC: make(chan BroadcastMessage),
 	}
 
 	go m.run()
@@ -33,15 +38,13 @@ func (m *Meeting) Join(uuid ParticipantUUID, send chan<- OutgoingMessage) (*Part
 		return nil, errors.Wrap(err, "could not create a participant")
 	}
 
-	for _, existingParticipant := range m.participants {
-		existingParticipant.sync(participant)
-	}
+	m.syncJoin(participant)
 
 	m.participants = append(m.participants, participant)
 
 	go func() {
 		<-participant.Closed()
-		m.remove(participant)
+		m.onParticipantClosed(participant)
 	}()
 
 	return participant, nil
@@ -63,23 +66,44 @@ func (m *Meeting) run() {
 	}
 }
 
-func (m *Meeting) broadcast(msg OutgoingMessage) {
+func (m *Meeting) broadcast(msg BroadcastMessage) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
 	for _, participant := range m.participants {
-		participant.send(msg)
+		if participant.UUID() != msg.Sender {
+			participant.send(msg.Message)
+		}
 	}
 }
 
-func (m *Meeting) remove(p *Participant) {
+func (m *Meeting) onParticipantClosed(participant *Participant) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
+	m.remove(participant)
+	m.syncQuit(participant)
+}
+
+func (m *Meeting) remove(p *Participant) {
 	for i := range m.participants {
 		if m.participants[i].UUID() == p.UUID() {
 			m.participants = append(m.participants[:i], m.participants[i+1:]...)
 			return
+		}
+	}
+}
+
+func (m *Meeting) syncQuit(participant *Participant) {
+	for _, remainingParticipant := range m.participants {
+		remainingParticipant.syncQuit(participant)
+	}
+}
+
+func (m *Meeting) syncJoin(participant *Participant) {
+	for _, existingParticipant := range m.participants {
+		if participant.uuid != existingParticipant.uuid {
+			existingParticipant.syncJoin(participant)
 		}
 	}
 }

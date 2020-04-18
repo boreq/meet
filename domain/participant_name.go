@@ -10,7 +10,7 @@ type ParticipantName struct {
 
 func NewParticipantName(name string) (ParticipantName, error) {
 	if len(name) > 100 {
-		return ParticipantName{}, errors.New("name too long")
+		return ParticipantName{}, errors.New("participant name too long")
 	}
 
 	return ParticipantName{name}, nil

@@ -11,8 +11,6 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/oklog/ulid v1.3.1
-	github.com/pion/rtcp v1.2.1
-	github.com/pion/webrtc/v2 v2.2.4
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.5
 	github.com/rs/cors v1.6.0

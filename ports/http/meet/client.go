@@ -122,7 +122,7 @@ func (c *Client) marshalMessage(msg domain.OutgoingMessage) ([]byte, error) {
 func (c *Client) marshalOutgoingMessage(msg domain.OutgoingMessage) (OutgoingMessage, error) {
 	message, messageType, err := c.toTransportMessage(msg)
 	if err != nil {
-		return OutgoingMessage{}, errors.Wrap(err, "could not get a message type")
+		return OutgoingMessage{}, errors.Wrap(err, "could not convert to transport message")
 	}
 
 	b, err := json.Marshal(message)
@@ -138,6 +138,14 @@ func (c *Client) marshalOutgoingMessage(msg domain.OutgoingMessage) (OutgoingMes
 
 func (c *Client) toTransportMessage(message domain.OutgoingMessage) (interface{}, OutgoingMessageType, error) {
 	switch msg := message.(type) {
+	case domain.JoinedMessage:
+		return JoinedMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+		}, JoinedMessage, nil
+	case domain.QuitMessage:
+		return QuitMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+		}, QuitMessage, nil
 	case domain.NameChangedMessage:
 		return NameChangedMsg{
 			ParticipantUUID: msg.ParticipantUUID.String(),
@@ -167,5 +175,7 @@ type OutgoingMessage struct {
 type OutgoingMessageType string
 
 const (
+	JoinedMessage      OutgoingMessageType = "joined"
+	QuitMessage        OutgoingMessageType = "quit"
 	NameChangedMessage OutgoingMessageType = "nameChanged"
 )
