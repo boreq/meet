@@ -107,3 +107,35 @@ func (m *Meeting) syncJoin(participant *Participant) {
 		}
 	}
 }
+
+func (m *Meeting) PassSessionDescription(targetParticipantUUID ParticipantUUID, sourceParticipantUUID ParticipantUUID, sessionDescription SessionDescription) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	msg := RemoteSessionDescription{
+		ParticipantUUID:    sourceParticipantUUID,
+		SessionDescription: sessionDescription,
+	}
+
+	m.sendTo(targetParticipantUUID, msg)
+}
+
+func (m *Meeting) PassIceCandidate(targetParticipantUUID ParticipantUUID, sourceParticipantUUID ParticipantUUID, iceCandidate IceCandidate) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	msg := RemoteIceCandidate{
+		ParticipantUUID: sourceParticipantUUID,
+		IceCandidate:    iceCandidate,
+	}
+
+	m.sendTo(targetParticipantUUID, msg)
+}
+
+func (m *Meeting) sendTo(participantUUID ParticipantUUID, msg OutgoingMessage) {
+	for _, existingParticipant := range m.participants {
+		if participantUUID == existingParticipant.uuid {
+			existingParticipant.send(msg)
+		}
+	}
+}

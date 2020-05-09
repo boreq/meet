@@ -2,6 +2,10 @@ package domain
 
 type OutgoingMessage interface{}
 
+type HelloMessage struct {
+	ParticipantUUID ParticipantUUID
+}
+
 type JoinedMessage struct {
 	ParticipantUUID ParticipantUUID
 }
@@ -15,7 +19,12 @@ type NameChangedMessage struct {
 	Name            ParticipantName
 }
 
-type RemoteSessionDescriptionReceived struct {
+type RemoteSessionDescription struct {
 	ParticipantUUID    ParticipantUUID
 	SessionDescription SessionDescription
+}
+
+type RemoteIceCandidate struct {
+	ParticipantUUID ParticipantUUID
+	IceCandidate    IceCandidate
 }

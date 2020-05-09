@@ -138,6 +138,10 @@ func (c *Client) marshalOutgoingMessage(msg domain.OutgoingMessage) (OutgoingMes
 
 func (c *Client) toTransportMessage(message domain.OutgoingMessage) (interface{}, OutgoingMessageType, error) {
 	switch msg := message.(type) {
+	case domain.HelloMessage:
+		return HelloMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+		}, HelloMessage, nil
 	case domain.JoinedMessage:
 		return JoinedMsg{
 			ParticipantUUID: msg.ParticipantUUID.String(),
@@ -151,6 +155,16 @@ func (c *Client) toTransportMessage(message domain.OutgoingMessage) (interface{}
 			ParticipantUUID: msg.ParticipantUUID.String(),
 			Name:            msg.Name.String(),
 		}, NameChangedMessage, nil
+	case domain.RemoteSessionDescription:
+		return RemoteSessionDescriptionMsg{
+			ParticipantUUID:    msg.ParticipantUUID.String(),
+			SessionDescription: msg.SessionDescription.String(),
+		}, RemoteSessionDescriptionMessage, nil
+	case domain.RemoteIceCandidate:
+		return RemoteIceCandidateMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+			IceCandidate:    msg.IceCandidate.String(),
+		}, RemoteIceCandidateMessage, nil
 	default:
 		return nil, "", fmt.Errorf("unsupported message: '%T'", msg)
 	}
@@ -164,7 +178,9 @@ type IncomingMessage struct {
 type IncomingMessageType string
 
 const (
-	SetNameMessage IncomingMessageType = "setName"
+	SetNameMessage                 IncomingMessageType = "setName"
+	LocalSessionDescriptionMessage IncomingMessageType = "localSessionDescription"
+	LocalIceCandidateMessage       IncomingMessageType = "localIceCandidate"
 )
 
 type OutgoingMessage struct {
@@ -175,7 +191,10 @@ type OutgoingMessage struct {
 type OutgoingMessageType string
 
 const (
-	JoinedMessage      OutgoingMessageType = "joined"
-	QuitMessage        OutgoingMessageType = "quit"
-	NameChangedMessage OutgoingMessageType = "nameChanged"
+	HelloMessage                    OutgoingMessageType = "hello"
+	JoinedMessage                   OutgoingMessageType = "joined"
+	QuitMessage                     OutgoingMessageType = "quit"
+	NameChangedMessage              OutgoingMessageType = "nameChanged"
+	RemoteSessionDescriptionMessage OutgoingMessageType = "remoteSessionDescription"
+	RemoteIceCandidateMessage       OutgoingMessageType = "remoteIceCandidate"
 )

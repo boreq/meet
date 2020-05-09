@@ -50,19 +50,21 @@ func (h *JoinMeetingHandler) Execute(ctx context.Context, cmd JoinMeeting) error
 			if !ok {
 				return nil
 			}
-			h.dispatchMessage(participant, msg)
+			h.dispatchMessage(meeting, participant, msg)
 		case <-ctx.Done():
 			return nil
 		}
 	}
 }
 
-func (h *JoinMeetingHandler) dispatchMessage(participant *domain.Participant, msg IncomingMessage) {
+func (h *JoinMeetingHandler) dispatchMessage(meeting *domain.Meeting, participant *domain.Participant, msg IncomingMessage) {
 	switch m := msg.(type) {
 	case SetNameMessage:
 		participant.SetName(m.Name)
-	case PassLocalSessionDescription:
-		println(m.SessionDescription.String())
+	case LocalSessionDescription:
+		meeting.PassSessionDescription(m.TargetParticipantUUID, participant.UUID(), m.SessionDescription)
+	case LocalIceCandidate:
+		meeting.PassIceCandidate(m.TargetParticipantUUID, participant.UUID(), m.IceCandidate)
 	default:
 		h.log.Warn("unknown message received", "msg", msg)
 	}

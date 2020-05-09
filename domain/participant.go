@@ -16,12 +16,16 @@ func NewParticipant(uuid ParticipantUUID, sendC chan<- OutgoingMessage, broadcas
 		return nil, errors.New("zero value of uuid")
 	}
 
-	return &Participant{
+	participant := &Participant{
 		uuid:       uuid,
 		sendC:      sendC,
 		broadcastC: broadcastC,
 		closeC:     make(chan struct{}),
-	}, nil
+	}
+
+	participant.send(participant.helloMessage())
+
+	return participant, nil
 }
 
 func (p *Participant) SetName(name ParticipantName) {
@@ -77,6 +81,10 @@ func (p *Participant) broadcast(msg OutgoingMessage) {
 	case <-p.closeC:
 		return
 	}
+}
+
+func (p *Participant) helloMessage() HelloMessage {
+	return HelloMessage{p.uuid}
 }
 
 func (p *Participant) joinedMessage() JoinedMessage {
