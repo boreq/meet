@@ -24,6 +24,21 @@ var incomingMapping = map[IncomingMessageType]func(payload []byte) (meet.Incomin
 			Name: name,
 		}, nil
 	},
+	UpdateVisualisationStateMessage: func(payload []byte) (meet.IncomingMessage, error) {
+		var transport UpdateVisualisationStateMsg
+		if err := json.Unmarshal(payload, &transport); err != nil {
+			return nil, errors.Wrap(err, "json unmarshal failed")
+		}
+
+		state, err := domain.NewVisualisationState(transport.State)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not create a visualisation state")
+		}
+
+		return meet.UpdateVisualisationStateMessage{
+			State: state,
+		}, nil
+	},
 	LocalSessionDescriptionMessage: func(payload []byte) (meet.IncomingMessage, error) {
 		var transport LocalSessionDescriptionMsg
 		if err := json.Unmarshal(payload, &transport); err != nil {
@@ -40,7 +55,7 @@ var incomingMapping = map[IncomingMessageType]func(payload []byte) (meet.Incomin
 			return nil, errors.Wrap(err, "could not create an ice candidate")
 		}
 
-		return meet.LocalSessionDescription{
+		return meet.LocalSessionDescriptionMessage{
 			TargetParticipantUUID: targetParticipantUUID,
 			SessionDescription:    sessionDescription,
 		}, nil
@@ -61,7 +76,7 @@ var incomingMapping = map[IncomingMessageType]func(payload []byte) (meet.Incomin
 			return nil, errors.Wrap(err, "could not create an ice candidate")
 		}
 
-		return meet.LocalIceCandidate{
+		return meet.LocalIceCandidateMessage{
 			TargetParticipantUUID: targetParticipantUUID,
 			IceCandidate:          iceCandidate,
 		}, nil
@@ -70,6 +85,10 @@ var incomingMapping = map[IncomingMessageType]func(payload []byte) (meet.Incomin
 
 type SetNameMsg struct {
 	Name string `json:"name"`
+}
+
+type UpdateVisualisationStateMsg struct {
+	State string `json:"state"`
 }
 
 type LocalSessionDescriptionMsg struct {

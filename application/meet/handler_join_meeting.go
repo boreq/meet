@@ -61,9 +61,11 @@ func (h *JoinMeetingHandler) dispatchMessage(meeting *domain.Meeting, participan
 	switch m := msg.(type) {
 	case SetNameMessage:
 		participant.SetName(m.Name)
-	case LocalSessionDescription:
+	case UpdateVisualisationStateMessage:
+		participant.UpdateState(m.State)
+	case LocalSessionDescriptionMessage:
 		meeting.PassSessionDescription(m.TargetParticipantUUID, participant.UUID(), m.SessionDescription)
-	case LocalIceCandidate:
+	case LocalIceCandidateMessage:
 		meeting.PassIceCandidate(m.TargetParticipantUUID, participant.UUID(), m.IceCandidate)
 	default:
 		h.log.Warn("unknown message received", "msg", msg)

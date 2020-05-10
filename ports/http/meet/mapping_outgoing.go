@@ -17,6 +17,11 @@ type NameChangedMsg struct {
 	Name            string `json:"name"`
 }
 
+type VisualisationStateMsg struct {
+	ParticipantUUID string `json:"participantUUID"`
+	State           string `json:"state"`
+}
+
 type RemoteSessionDescriptionMsg struct {
 	ParticipantUUID    string `json:"participantUUID"`
 	SessionDescription string `json:"sessionDescription"`

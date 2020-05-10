@@ -155,6 +155,11 @@ func (c *Client) toTransportMessage(message domain.OutgoingMessage) (interface{}
 			ParticipantUUID: msg.ParticipantUUID.String(),
 			Name:            msg.Name.String(),
 		}, NameChangedMessage, nil
+	case domain.VisualisationStateMessage:
+		return VisualisationStateMsg{
+			ParticipantUUID: msg.ParticipantUUID.String(),
+			State:           msg.State.String(),
+		}, VisualisationStateMessage, nil
 	case domain.RemoteSessionDescription:
 		return RemoteSessionDescriptionMsg{
 			ParticipantUUID:    msg.ParticipantUUID.String(),
@@ -178,9 +183,10 @@ type IncomingMessage struct {
 type IncomingMessageType string
 
 const (
-	SetNameMessage                 IncomingMessageType = "setName"
-	LocalSessionDescriptionMessage IncomingMessageType = "localSessionDescription"
-	LocalIceCandidateMessage       IncomingMessageType = "localIceCandidate"
+	SetNameMessage                  IncomingMessageType = "setName"
+	UpdateVisualisationStateMessage IncomingMessageType = "updateVisualisationState"
+	LocalSessionDescriptionMessage  IncomingMessageType = "localSessionDescription"
+	LocalIceCandidateMessage        IncomingMessageType = "localIceCandidate"
 )
 
 type OutgoingMessage struct {
@@ -195,6 +201,7 @@ const (
 	JoinedMessage                   OutgoingMessageType = "joined"
 	QuitMessage                     OutgoingMessageType = "quit"
 	NameChangedMessage              OutgoingMessageType = "nameChanged"
+	VisualisationStateMessage       OutgoingMessageType = "visualisationState"
 	RemoteSessionDescriptionMessage OutgoingMessageType = "remoteSessionDescription"
 	RemoteIceCandidateMessage       OutgoingMessageType = "remoteIceCandidate"
 )

@@ -33,6 +33,10 @@ func (p *Participant) SetName(name ParticipantName) {
 	p.broadcast(p.nameChangedMessage())
 }
 
+func (p *Participant) UpdateState(state VisualisationState) {
+	p.broadcast(p.visualisationStateMessage(state))
+}
+
 func (p *Participant) UUID() ParticipantUUID {
 	return p.uuid
 }
@@ -93,6 +97,10 @@ func (p *Participant) joinedMessage() JoinedMessage {
 
 func (p *Participant) nameChangedMessage() NameChangedMessage {
 	return NameChangedMessage{p.uuid, p.name}
+}
+
+func (p *Participant) visualisationStateMessage(state VisualisationState) VisualisationStateMessage {
+	return VisualisationStateMessage{p.uuid, state}
 }
 
 func (p *Participant) quitMessage() QuitMessage {

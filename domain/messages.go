@@ -19,6 +19,11 @@ type NameChangedMessage struct {
 	Name            ParticipantName
 }
 
+type VisualisationStateMessage struct {
+	ParticipantUUID ParticipantUUID
+	State           VisualisationState
+}
+
 type RemoteSessionDescription struct {
 	ParticipantUUID    ParticipantUUID
 	SessionDescription SessionDescription
