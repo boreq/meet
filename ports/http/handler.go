@@ -9,11 +9,11 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const meetPrefix = "/api/meet"
+
 type Handler struct {
 	router *chi.Mux
 }
-
-const hydroPrefix = "/api/meet"
 
 func NewHandler(app *application.Application) (*Handler, error) {
 	h := &Handler{
@@ -21,7 +21,7 @@ func NewHandler(app *application.Application) (*Handler, error) {
 	}
 
 	// Subrouters
-	h.router.Mount(hydroPrefix, http.StripPrefix(hydroPrefix, meet.NewHandler(app)))
+	h.router.Mount(meetPrefix, http.StripPrefix(meetPrefix, meet.NewHandler(app)))
 
 	// Frontend
 	ffs, err := frontend.NewFrontendFileSystem()
